@@ -7,7 +7,7 @@
 //#define USE_APA102 // Uncomment for using APA102 LEDs.
 #define BTNPIN 0     //button pin. Needs to have pullup (gpio0 recommended)
 #define IR_PIN 4     //infrared pin (-1 to disable)
-#ifdef WLED_USE_ANALOG_LEDS
+#ifdef WLED_ENABLE_ANALOG_LEDS
   #define RLYPIN -1 //disable RLYPIN as it will be used for the RGB-PINs
 #else
   #define RLYPIN 12 //pin for relay, will be set HIGH if LEDs are on (-1 to disable). Also usable for standby leds, triggers,...
@@ -24,7 +24,7 @@
  #endif
 #endif
 
-#ifdef WLED_USE_ANALOG_LEDS
+#ifdef WLED_ENABLE_ANALOG_LEDS
   //PWM pins - PINs 15,13,12,14 (W2 = 04)are used with H801 Wifi LED Controller
   //PWM pins - PINs 12,5,13,15 are used with Magic Home LED Controller
     #define RPIN  15  //R pin for analog LED strip   
@@ -118,14 +118,14 @@ public:
         _pGrbw->Begin();
       break;
 
-        #ifdef WLED_USE_ANALOG_LEDS      
+        #ifdef WLED_ENABLE_ANALOG_LEDS      
           //init PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
           pinMode(RPIN, OUTPUT);
           pinMode(GPIN, OUTPUT);
           pinMode(BPIN, OUTPUT);
           switch (_type) {
             case NeoPixelType_Grb:                                                    break;
-            #ifdef WLED_USE_5CH_LEDS
+            #ifdef WLED_ENABLE_5CH_LEDS
               case NeoPixelType_Grbw: pinMode(WPIN, OUTPUT); pinMode(W2PIN, OUTPUT);  break;
             #else
               case NeoPixelType_Grbw: pinMode(WPIN, OUTPUT);                          break;
@@ -138,7 +138,7 @@ public:
     }
   }
 
-#ifdef WLED_USE_ANALOG_LEDS      
+#ifdef WLED_ENABLE_ANALOG_LEDS      
     void SetRgbwPwm(uint8_t r, uint8_t g, uint8_t b, uint8_t w, uint8_t w2=0)
     {
       analogWrite(RPIN, r);
@@ -146,7 +146,7 @@ public:
       analogWrite(BPIN, b);
       switch (_type) {
         case NeoPixelType_Grb:                                                  break;
-        #ifdef WLED_USE_5CH_LEDS
+        #ifdef WLED_ENABLE_5CH_LEDS
           case NeoPixelType_Grbw: analogWrite(WPIN, w); analogWrite(W2PIN, w2); break;
         #else
           case NeoPixelType_Grbw: analogWrite(WPIN, w);                         break;
@@ -162,7 +162,7 @@ public:
     {
       case NeoPixelType_Grb: {
         _pGrb->Show();
-        #ifdef WLED_USE_ANALOG_LEDS      
+        #ifdef WLED_ENABLE_ANALOG_LEDS      
           RgbColor color = _pGrb->GetPixelColor(0);
           b = _pGrb->GetBrightness();
           SetRgbwPwm(color.R * b / 255, color.G * b / 255, color.B * b / 255, 0);
@@ -171,11 +171,11 @@ public:
       break;
       case NeoPixelType_Grbw: {
         _pGrbw->Show();
-        #ifdef WLED_USE_ANALOG_LEDS      
+        #ifdef WLED_ENABLE_ANALOG_LEDS      
           RgbwColor colorW = _pGrbw->GetPixelColor(0);
           b = _pGrbw->GetBrightness();
           // check color values for Warm / COld white mix (for RGBW)  // EsplanexaDevice.cpp
-          #ifdef WLED_USE_5CH_LEDS
+          #ifdef WLED_ENABLE_5CH_LEDS
             if        (colorW.R == 255 & colorW.G == 255 && colorW.B == 255 && colorW.W == 255) {  
               SetRgbwPwm(0, 0, 0,                  0, colorW.W * b / 255);
             } else if (colorW.R == 127 & colorW.G == 127 && colorW.B == 127 && colorW.W == 255) {  
