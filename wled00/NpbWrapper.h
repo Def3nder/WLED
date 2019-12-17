@@ -5,13 +5,8 @@
 //PIN CONFIGURATION
 #define LEDPIN 2     //strip pin. Any for ESP32, gpio2 or 3 is recommended for ESP8266 (gpio2/3 are labeled D4/RX on NodeMCU and Wemos)
 //#define USE_APA102 // Uncomment for using APA102 LEDs.
-#ifdef WLED_USE_H801
-  #define BTNPIN -1 //button pin. Needs to have pullup (gpio0 recommended)
-  #define IR_PIN  0 //infrared pin (-1 to disable)  MagicHome: 4, H801 Wifi: 0
-#else
-  #define BTNPIN  0 //button pin. Needs to have pullup (gpio0 recommended)
-  #define IR_PIN  4 //infrared pin (-1 to disable)  MagicHome: 4, H801 Wifi: 0
-#endif
+#define BTNPIN 0     //button pin. Needs to have pullup (gpio0 recommended)
+#define IR_PIN 4     //infrared pin (-1 to disable)
 #ifdef WLED_USE_ANALOG_LEDS
   #define RLYPIN -1 //disable RLYPIN as it will be used for the RGB-PINs
 #else
@@ -31,19 +26,12 @@
 
 #ifdef WLED_USE_ANALOG_LEDS
   //PWM pins - PINs 15,13,12,14 (W2 = 04)are used with H801 Wifi LED Controller
-  #ifdef WLED_USE_H801
-    #define RPIN 15   //R pin for analog LED strip   
-    #define GPIN 13   //G pin for analog LED strip
-    #define BPIN 12   //B pin for analog LED strip
-    #define WPIN 14   //W pin for analog LED strip (W1: 14, W2: 04)
-    #define W2PIN 04  //W2 pin for analog LED strip 
-  #else
   //PWM pins - PINs 12,5,13,15 are used with Magic Home LED Controller
-    #define GPIN 12   //G pin for analog LED strip
-    #define RPIN 5   //R pin for analog LED strip   
-    #define WPIN 13   //W pin for analog LED strip
-    #define BPIN 15   //B pin for analog LED strip
-  #endif
+    #define RPIN  15  //R pin for analog LED strip   
+    #define GPIN  13  //G pin for analog LED strip
+    #define BPIN  12  //B pin for analog LED strip
+    #define WPIN  14  //W pin for analog LED strip (W1: 14, W2: 04)
+    #define W2PIN 04  //W2 pin for analog LED strip 
 #endif
 
 //automatically uses the right driver method for each platform
