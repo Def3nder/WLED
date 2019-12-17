@@ -3,12 +3,12 @@
  */
 
 //common CSS of settings pages
-const char PAGE_settingsCss[] PROGMEM = R"=====(body{font-family:var(--cFn),sans-serif;text-align:center;background:var(--cCol);color:var(--tCol);line-height:200%%;margin:0;background-attachment:fixed}hr{border-color:var(--dCol);filter:drop-shadow(-5px -5px 5px var(--sCol))}button{background:var(--bCol);color:var(--tCol);font-family:var(--cFn),sans-serif;border:.3ch solid var(--bCol);display:inline-block;filter:drop-shadow(-5px -5px 5px var(--sCol));font-size:20px;margin:8px;margin-top:12px}.helpB{text-align:left;position:absolute;width:60px}input{background:var(--bCol);color:var(--tCol);font-family:var(--cFn),sans-serif;border:.5ch solid var(--bCol);filter:drop-shadow(-5px -5px 5px var(--sCol))}input[type=number]{width:4em}select{background:var(--bCol);color:var(--tCol);font-family:var(--cFn),sans-serif;border:0.5ch solid var(--bCol);filter:drop-shadow( -5px -5px 5px var(--sCol) );}td{padding:2px;}</style>)=====";
+const char PAGE_settingsCss[] PROGMEM = R"=====(<style>body{font-family:Verdana,sans-serif;text-align:center;background:#222;color:#fff;line-height:200%%;margin:0}hr{border-color:#666}button{background:#333;color:#fff;font-family:Verdana,sans-serif;border:.3ch solid #333;display:inline-block;font-size:20px;margin:8px;margin-top:12px}.helpB{text-align:left;position:absolute;width:60px}input{background:#333;color:#fff;font-family:Verdana,sans-serif;border:.5ch solid #333}input[type=number]{width:4em}select{background:#333;color:#fff;font-family:Verdana,sans-serif;border:0.5ch solid #333}td{padding:2px;}</style>)=====";
 
 
 //settings menu
 const char PAGE_settings[] PROGMEM = R"=====(<!DOCTYPE html>
-<html><head><title>WLED Settings</title>%CSS%body{text-align:center;background:var(--cCol);height:100%%;margin:0;background-attachment:fixed}html{--h:11.55vh}button{background:var(--bCol);color:var(--tCol);font-family:var(--cFn),Helvetica,sans-serif;border:.3ch solid var(--bCol);display:inline-block;filter:drop-shadow(-5px -5px 5px var(--sCol));font-size:8vmin;height:var(--h);width:95%%;margin-top:2.4vh}</style>
+<html><head><title>WLED Settings</title><style>body{text-align:center;background:#222;height:100%;margin:0}html{--h:11.55vh}button{background:#333;color:#fff;font-family:Verdana,Helvetica,sans-serif;border:.3ch solid #333;display:inline-block;font-size:8vmin;height:var(--h);width:95%;margin-top:2.4vh}</style>
 <script>function BB(){if(window.frameElement){document.getElementById("b").style.display="none";document.documentElement.style.setProperty("--h","13.86vh")}};</script></head>
 <body onload=BB()>
 <form action=/><button type=submit id=b>Back</button></form>
@@ -71,33 +71,18 @@ AP IP: <span class="sip"> Not active </span><hr>
 
 //LED settings
 const char PAGE_settings_leds[] PROGMEM = R"=====(<!DOCTYPE html>
-<html><head><meta name=viewport content="width=500"><meta charset="utf-8"><title>LED Settings</title>
-<script>var f=0,p=0,d=document,laprev=55;function H()
-{window.open("https://github.com/Aircoookie/WLED/wiki/Settings#led-settings");}
-function B()
-{window.open("/settings","_self");}
-function S(){GetV();setTimeout(function(){fillfx(0);},200);setTimeout(function(){fillfx(1);},400);setABL();}
-function enABL(){var en=d.getElementById('able').checked;d.Sf.LA.value=(en)?laprev:0;d.getElementById('abl').style.display=(en)?'inline':'none';d.getElementById('psu2').style.display=(en)?'inline':'none';if(d.Sf.LA.value>0)setABL();}
-function enLA(){var val=d.Sf.LAsel.value;d.Sf.LA.value=val;d.getElementById('LAdis').style.display=(val==50)?'inline':'none';UI();}
-function setABL(){d.getElementById('able').checked = true;d.Sf.LAsel.value = 50;switch(parseInt(d.Sf.LA.value)){case 0:d.getElementById('able').checked=false;enABL();break;case 30:d.Sf.LAsel.value=30;break;case 35:d.Sf.LAsel.value=35;break;case 55:d.Sf.LAsel.value=55;break;default:d.getElementById('LAdis').style.display='inline';}
-UI();}
-function UI(){var myC=d.querySelectorAll('.wc'),l=myC.length;for(i=0;i<l;i++){myC[i].style.display=(d.getElementById('rgbw').checked)?'inline':'none';}
-d.getElementById('ledwarning').style.display=(d.Sf.LC.value>1000)?'inline':'none';d.getElementById('ampwarning').style.display=(d.Sf.MA.value>7200)?'inline':'none';if(d.Sf.LA.value>0)laprev=d.Sf.LA.value;var val=Math.ceil((100+d.Sf.LC.value*laprev)/500)/2;val=(val>5)?Math.ceil(val):val;var s="";var is12V=(d.Sf.LAsel.value==30);if(val<1.02&&!is12V)
-{s="ESP 5V pin with 1A USB supply";}else
-{s+=is12V?"12V ":"5V ";s+=val;s+="A supply connected to LEDs";}
-var val2=Math.ceil((100+d.Sf.LC.value*laprev)/1500)/2;val2=(val2>5)?Math.ceil(val2):val2;var s2="(for most effects, ~";s2+=val2;s2+="A is enough)<br>";d.getElementById('psu').innerHTML=s;d.getElementById('psu2').innerHTML=s2;}
-function fillfx(pl)
-{e="<option>Error loading list!</option>";el=pl?Sf.FP:Sf.FX;fetch(pl?'/json/palettes':'/json/effects').then(res=>{if(!res.ok){el.innerHTML=e;}
-return res.json();}).then(json=>{var x="";for(i in json){x+="<option value=\""+i+"\">"+json[i]+" ("+i+")</option>";}
-el.innerHTML=x;el.selectedIndex=pl?p:f;}).catch(function(){el.innerHTML=e;})}
-function GetV(){%CSS%%SCSS%</head>
-<body onload=S()>
+<html><head>
+<meta charset=utf-8>
+<meta name=viewport content="width=500">
+<title>LED Settings</title>
+<script>var d=document,laprev=55;function H(){window.open("https://github.com/Aircoookie/WLED/wiki/Settings#led-settings")}function B(){window.open("/settings","_self")}function S(){GetV();setABL()}function enABL(){var a=d.getElementById("able").checked;d.Sf.LA.value=(a)?laprev:0;d.getElementById("abl").style.display=(a)?"inline":"none";d.getElementById("psu2").style.display=(a)?"inline":"none";if(d.Sf.LA.value>0){setABL()}}function enLA(){var a=d.Sf.LAsel.value;d.Sf.LA.value=a;d.getElementById("LAdis").style.display=(a==50)?"inline":"none";UI()}function setABL(){d.getElementById("able").checked=true;d.Sf.LAsel.value=50;switch(parseInt(d.Sf.LA.value)){case 0:d.getElementById("able").checked=false;enABL();break;case 30:d.Sf.LAsel.value=30;break;case 35:d.Sf.LAsel.value=35;break;case 55:d.Sf.LAsel.value=55;break;default:d.getElementById("LAdis").style.display="inline"}UI()}function UI(){var b=d.querySelectorAll(".wc"),a=b.length;for(i=0;i<a;i++){b[i].style.display=(d.getElementById("rgbw").checked)?"inline":"none"}d.getElementById("ledwarning").style.display=(d.Sf.LC.value>1000)?"inline":"none";d.getElementById("ampwarning").style.display=(d.Sf.MA.value>7200)?"inline":"none";if(d.Sf.LA.value>0){laprev=d.Sf.LA.value}var j=Math.ceil((100+d.Sf.LC.value*laprev)/500)/2;j=(j>5)?Math.ceil(j):j;var g="";var e=(d.Sf.LAsel.value==30);if(j<1.02&&!e){g="ESP 5V pin with 1A USB supply"}else{g+=e?"12V ":"5V ";g+=j;g+="A supply connected to LEDs"}var h=Math.ceil((100+d.Sf.LC.value*laprev)/1500)/2;h=(h>5)?Math.ceil(h):h;var c="(for most effects, ~";c+=h;c+="A is enough)<br>";d.getElementById("psu").innerHTML=g;d.getElementById("psu2").innerHTML=c}function GetV(){var d=document;
+%CSS%%SCSS%</head><body onload=S()>
 <form id=form_s name=Sf method=post>
 <div class=helpB><button type=button onclick=H()>?</button></div>
 <button type=button onclick=B()>Back</button><button type=submit>Save</button><hr>
 <h2>LED setup</h2>
 LED count: <input name=LC type=number min=1 max=1500 oninput=UI() required><br>
-<div id=ledwarning style="color:orange; display: none;">
+<div id=ledwarning style=color:orange;display:none>
 &#9888; You might run into stability or lag issues.<br>
 Use less than 1000 LEDs per ESP for the best experience!<br>
 </div>
@@ -108,7 +93,7 @@ Use less than 1000 LEDs per ESP for the best experience!<br>
 Enable automatic brightness limiter: <input type=checkbox name=ABen onchange=enABL() id=able><br>
 <div id=abl>
 Maximum Current: <input name=MA type=number min=250 max=65000 oninput=UI() required> mA<br>
-<div id=ampwarning style="color:orange; display: none;">
+<div id=ampwarning style=color:orange;display:none>
 &#9888; Your power supply provides high current.<br>
 To improve the safety of your setup,<br>
 please use thick cables,<br>
@@ -130,6 +115,8 @@ LED voltage (Max. current for a single LED):<br>
 </div>
 <br>
 LEDs are 4-channel type (RGBW): <input type=checkbox name=EW onchange=UI() id=rgbw><br>
+<span class=wc>
+Auto-calculate white channel from RGB: <input type=checkbox name=AW><br></span>
 Color order:
 <select name=CO>
 <option value=0>GRB</option>
@@ -140,39 +127,15 @@ Color order:
 <h3>Defaults</h3>
 Turn LEDs on after power up/reset: <input type=checkbox name=BO><br>
 Default brightness: <input name=CA type=number min=0 max=255 required> (0-255)<br><br>
-Set current color, brightness and effects as boot default: <input type=checkbox name=IS><br>
-Set current preset cycle setting as boot default: <input type=checkbox name=PC>
+Apply preset <input name=BP type=number min=0 max=16 required> at boot (0 uses defaults)
 <br>- <i>or</i> -<br>
-Apply preset <input name=BP type=number min=0 max=25 required> at boot (0 uses defaults)
-<br>- <i>or</i> -<br>
-Default RGB<span class=wc>W</span> color:<br>
-<input name=CR type=number min=0 max=255 required>
-<input name=CG type=number min=0 max=255 required>
-<input name=CB type=number min=0 max=255 required>
-<span class=wc><input name=CW type=number min=0 max=255 required><br>
-Auto-calculate white from RGB instead: <input type=checkbox name=AW></span><br>
-Default secondary RGB<span class=wc>W</span>:<br>
-<input name=SR type=number min=0 max=255 required>
-<input name=SG type=number min=0 max=255 required>
-<input name=SB type=number min=0 max=255 required>
-<span class=wc><input name=SW type=number min=0 max=255 required></span><br>
-Default effect ID:<br>
-<select name=FX>
-<option>Loading...</option>
-</select>
-<br>Default color palette:<br>
-<select name=FP>
-<option>Loading...</option>
-</select><br>
-Default effect speed: <input name=SX type=number min=0 max=255 required><br>
-Default effect intensity: <input name=IX type=number min=0 max=255 required><br><br>
+Set current preset cycle setting as boot default: <input type=checkbox name=PC><br><br>
 Use Gamma correction for color: <input type=checkbox name=GC> (strongly recommended)<br>
 Use Gamma correction for brightness: <input type=checkbox name=GB> (not recommended)<br><br>
 Brightness factor: <input name=BF type=number min=1 max=255 required> %
 <h3>Transitions</h3>
 Crossfade: <input type=checkbox name=TF><br>
 Transition Time: <input name=TD maxlength=5 size=2> ms<br>
-Enable transition for secondary color: <input type=checkbox name=T2><br>
 Enable Palette transitions: <input type=checkbox name=PF>
 <h3>Timed light</h3>
 Default Duration: <input name=TL type=number min=1 max=255 required> min<br>
@@ -187,10 +150,11 @@ Palette blending:
 <option value=3>None (not recommended)</option>
 </select><br>
 Reverse LED order (rotate 180): <input type=checkbox name=RV><br>
-Skip first LED: <input type=checkbox name=SL><hr>
+Skip first LED: <input type=checkbox name=SL><br>
+Disable repeating N LEDs: <input type=number min=0 max=255 name=DL><br>
+(Turns off N LEDs between each lit one, spacing out effects)<hr>
 <button type=button onclick=B()>Back</button><button type=submit>Save</button>
-</form></body>
-</html>)=====";
+</form></body></html>)=====";
 
 
 //User Interface settings
@@ -203,44 +167,8 @@ function gId(s){return document.getElementById(s);}function S(){GetV();Ct();}fun
 <div class="helpB"><button type="button" onclick="H()">?</button></div>
 <button type="button" onclick="B()">Back</button><button type="submit">Save</button><hr>
 <h2>Web Setup</h2>
-User Interface Mode:
-<select name="UI">
-<option value="0" selected>Auto</option>
-<option value="1">Classic</option>
-<option value="2">Mobile</option>
-</select><br>
-Server description: <input name="DS" maxlength="32"><br><br>
-<i>The following options are for the classic UI!</i><br>
-Use HSB sliders instead of RGB by default: <input type="checkbox" name="MD"><br>
-Color Theme:
-<select name="TH" onchange="Ct()">
-<option value="0" selected>Night</option>
-<option value="1">Modern</option>
-<option value="2">Bright</option>
-<option value="3">Wine</option>
-<option value="4">Electric</option>
-<option value="5">Mint</option>
-<option value="6">Amber</option>
-<option value="7">Dark</option>
-<option value="8">Air</option>
-<option value="9">Nixie</option>
-<option value="10">Terminal</option>
-<option value="11">C64</option>
-<option value="12">Easter</option>
-<option value="13">Christmas</option>
-<option value="14">The End</option>
-<option value="15" id="co">Custom</option>
-</select><br>
-<div id="cth">
-Please specify your custom hex colors (e.g. FF0000 for red)<br>
-Custom accent color: <input maxlength=9 name="C0"><br>
-Custom background: <input maxlength=9 name="C1"><br>
-Custom panel color: <input maxlength=9 name="C2"><br>
-Custom icon color: <input maxlength=9 name="C3"><br>
-Custom shadow: <input maxlength=9 name="C4"><br>
-Custom text color: <input maxlength=9 name="C5"><br></div>
-Use font: <input maxlength=32 name="CF"><br>
-Make sure the font you use is installed on your system!<br>
+Server description: <input name="DS" maxlength="32"><br>
+Sync button toggles both send and receive: <input type="checkbox" name="ST"><br><br>
 <hr><button type="button" onclick="B()">Back</button><button type="submit">Save</button>
 </form>
 </body>
@@ -291,6 +219,7 @@ For best results, only use one of these services at a time.<br>
 Device Auth token: <input name="BK" maxlength="33"><br>
 <i>Clear the token field to disable. </i><a href="https://github.com/Aircoookie/WLED/wiki/Blynk" target="_blank">Setup info</a>
 <h3>MQTT</h3>
+Enable MQTT: <input type="checkbox" name="MQ"><br>
 Broker: <input name="MS" maxlength="32">
 Port: <input name="MQPORT" type="number" min="1" max="65535" required><br>
 <b>The MQTT credentials are sent over an unsecured connection.<br>
@@ -333,6 +262,7 @@ function Wd(){a=[0,0,0,0,0,0,0,0];for(i=0;i<8;i++){m=1;for(j=0;j<8;j++){a[i]+=gI
 <button type="button" onclick="B()">Back</button><button type="submit">Save</button><hr>
 <h2>Time setup</h2>
 Get time from NTP server: <input type="checkbox" name="NT"><br>
+<input name="NS" maxlength="32"><br>
 Use 24h format: <input type="checkbox" name="CF"><br>
 Time zone:
 <select name="TZ">
@@ -359,7 +289,7 @@ Clock Overlay:
 <select name="OL" onchange="Cs()">
 <option value="0" id="cn" selected>None</option>
 <option value="1" id="ca">Analog Clock</option>
-<option value="2">Single Digit Clock</option>
+<option value="2" disabled>-</option>
 <option value="3" id="cc">Cronixie Clock</option>
 </select><br>
 <div id="coc">
@@ -437,7 +367,7 @@ HTTP traffic is unencrypted. An attacker in the same network can intercept form 
 <button type="button" onclick="U()">Manual OTA Update</button><br>
 Enable ArduinoOTA: <input type="checkbox" name="AO"><br>
 <h3>About</h3>
-<a href="https://github.com/Aircoookie/WLED" target="_blank">WLED</a> version 0.8.6<br><br>
+<a href="https://github.com/Aircoookie/WLED" target="_blank">WLED</a> version 0.9.0-b1<br><br>
 <a href="https://github.com/Aircoookie/WLED/wiki/Contributors-&-About" target="_blank">Contributors, dependencies and special thanks</a><br>
 A huge thank you to everyone who helped me create WLED!<br><br>
 (c) 2016-2019 Christian Schwinne <br>
