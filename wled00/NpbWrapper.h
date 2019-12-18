@@ -17,7 +17,7 @@
 #else
   #define RLYPIN 12 //pin for relay, will be set HIGH if LEDs are on (-1 to disable). Also usable for standby leds, triggers,...
 #endif
-#define AUXPIN -1 //debug auxiliary output pin (-1 to disable)
+#define AUXPIN -1    //debug auxiliary output pin (-1 to disable)
 
 #define RLYMDE 1     //mode for relay, 0: LOW if LEDs are on 1: HIGH if LEDs are on
 
@@ -150,7 +150,28 @@ public:
         #endif
 
     }
+  
+        #ifdef WLED_ENABLE_ANALOG_LEDS      
+          //init PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
+          pinMode(RPIN, OUTPUT);
+          pinMode(GPIN, OUTPUT);
+          pinMode(BPIN, OUTPUT);
+          switch (_type) {
+            case NeoPixelType_Grb:                                                    break;
+            #ifdef WLED_ENABLE_5CH_LEDS
+              case NeoPixelType_Grbw: pinMode(WPIN, OUTPUT); pinMode(W2PIN, OUTPUT);  break;
+            #else
+              case NeoPixelType_Grbw: pinMode(WPIN, OUTPUT);                          break;
+            #endif
+          }
+          analogWriteRange(255);  //same range as one RGB channel
+          analogWriteFreq(880);   //PWM frequency proven as good for LEDs
+        #endif
+
+    }
+  
   }
+
 
 #ifdef WLED_ENABLE_ANALOG_LEDS      
     void SetRgbwPwm(uint8_t r, uint8_t g, uint8_t b, uint8_t w, uint8_t w2=0)
@@ -188,7 +209,7 @@ public:
         #ifdef WLED_ENABLE_ANALOG_LEDS      
           RgbwColor colorW = _pGrbw->GetPixelColor(0);
           b = _pGrbw->GetBrightness();
-          // check color values for Warm / COld white mix (for RGBW)  // EsplanexaDevice.cpp
+          // check color values for Warm / Cold white mix (for RGBW) EsplanexaDevice.cpp and translate them into CW/WW values
           #ifdef WLED_ENABLE_5CH_LEDS
             if        (colorW.R == 255 & colorW.G == 255 && colorW.B == 255 && colorW.W == 255) {  
               SetRgbwPwm(0, 0, 0,                  0, colorW.W * b / 255);

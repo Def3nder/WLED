@@ -165,6 +165,12 @@ uint32_t EspalexaDevice::getRGB()
         rgb[2] = (byte)constrain(b,0.1,255.1);
       }
     }
+    
+    rgb[0] = (byte)constrain(r,0.1,255.1);
+    rgb[1] = (byte)constrain(g,0.1,255.1);
+    rgb[2] = (byte)constrain(b,0.1,255.1);
+
+    }
   } else if (_mode == EspalexaColorMode::hs)
   {
     float h = ((float)_hue)/65535.0;
@@ -238,7 +244,7 @@ uint32_t EspalexaDevice::getRGB()
     rgb[1] = 255.0*g;
     rgb[2] = 255.0*b;
   }
-  _rgb = ((rgb[3] << 24) | (rgb[0] << 16) | (rgb[1] << 8) | (rgb[2]));
+  _rgb = ((rgb[3] << 24) | (rgb[0] << 16) | (rgb[1] << 8) | (rgb[2]));  //white value is only >0 if Alexa did provide a CT value
   return _rgb;
 }
 
