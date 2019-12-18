@@ -131,25 +131,6 @@ public:
       #endif
         _pGrbw->Begin();
       break;
-
-        #ifdef WLED_ENABLE_ANALOG_LEDS      
-          //init PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
-          pinMode(RPIN, OUTPUT);
-          pinMode(GPIN, OUTPUT);
-          pinMode(BPIN, OUTPUT);
-          switch (_type) {
-            case NeoPixelType_Grb:                                                    break;
-            #ifdef WLED_ENABLE_5CH_LEDS
-              case NeoPixelType_Grbw: pinMode(WPIN, OUTPUT); pinMode(W2PIN, OUTPUT);  break;
-            #else
-              case NeoPixelType_Grbw: pinMode(WPIN, OUTPUT);                          break;
-            #endif
-          }
-          analogWriteRange(255);  //same range as one RGB channel
-          analogWriteFreq(880);   //PWM frequency proven as good for LEDs
-        #endif
-
-    }
   
         #ifdef WLED_ENABLE_ANALOG_LEDS      
           //init PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
