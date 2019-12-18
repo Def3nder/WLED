@@ -66,7 +66,6 @@ public:
   void setColor(uint16_t hue, uint8_t sat);
   void setColorXY(float x, float y);
   void setColor(uint8_t r, uint8_t g, uint8_t b);
-  void RGBtoRGBW(byte* rgb);
   
   void doCallback();
   
