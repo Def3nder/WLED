@@ -153,7 +153,6 @@ uint32_t EspalexaDevice::getRGB()
         rgb[2] = (byte)constrain(b,0.1,255.1);
       }
     }
-    
   } else if (_mode == EspalexaColorMode::hs)
   {
     float h = ((float)_hue)/65535.0;

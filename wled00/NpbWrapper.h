@@ -28,9 +28,8 @@
  #endif
 #endif
 
-#ifdef WLED_ENABLE_ANALOG_LEDS
-  //PWM pins - PINs R=15,G=13,B=12,W=14 (W2 = 4)are used with H801 Wifi LED Controller
-  //PWM pins - PINs R=5,G=12,B=13,W=15 are used with Magic Home LED Controller
+#ifdef WLED_USE_ANALOG_LEDS
+  //PWM pins - PINs 15,13,12,14 (W2 = 04)are used with H801 Wifi LED Controller
   #ifdef WLED_USE_H801
     #define RPIN 15   //R pin for analog LED strip   
     #define GPIN 13   //G pin for analog LED strip
@@ -182,8 +181,7 @@ public:
     #endif
   }
 
-
-#ifdef WLED_ENABLE_ANALOG_LEDS      
+#ifdef WLED_USE_ANALOG_LEDS      
     void SetRgbwPwm(uint8_t r, uint8_t g, uint8_t b, uint8_t w, uint8_t w2=0)
     {
       #ifdef ARDUINO_ARCH_ESP32
