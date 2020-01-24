@@ -95,18 +95,6 @@ float EspalexaDevice::getY()
   return _y;
 }
 
-float EspalexaDevice::minf (float v, float w)
-{
-  if (w > v) return v;
-  return w;
-}
-
-float EspalexaDevice::maxf (float v, float w)
-{
-  if (w > v) return w;
-  return v;
-}
-
 uint16_t EspalexaDevice::getCt()
 {
   if (_ct == 0) return 500;
@@ -134,7 +122,7 @@ uint32_t EspalexaDevice::getRGB()
     float temp = 10000/ _ct; //kelvins = 1,000,000/mired (and that /100)
     float r, g, b;
 
-    // Cold white to warm white receiving from Alexa: _ct = 199, 234, 284, 350, 383 (from cold white to warm white)
+// Cold white to warm white receiving from Alexa: _ct = 199, 234, 284, 350, 383 (from cold white to warm white)
     switch (_ct) {
       case 199: rgb[0]=255,rgb[1]=255,rgb[2]=255;rgb[3]=255;break;
       case 234: rgb[0]=127,rgb[1]=127,rgb[2]=127;rgb[3]=255;break;
@@ -159,7 +147,7 @@ uint32_t EspalexaDevice::getRGB()
           g = 288.12217 * pow(g, -0.07551485 );
           b = 255;
         }
-        
+    
         rgb[0] = (byte)constrain(r,0.1,255.1);
         rgb[1] = (byte)constrain(g,0.1,255.1);
         rgb[2] = (byte)constrain(b,0.1,255.1);
@@ -239,10 +227,11 @@ uint32_t EspalexaDevice::getRGB()
     rgb[1] = 255.0*g;
     rgb[2] = 255.0*b;
   }
-  _rgb = ((rgb[3] << 24) | (rgb[0] << 16) | (rgb[1] << 8) | (rgb[2]));  //white value is only >0 if Alexa did provide a CT value
+  _rgb = ((rgb[3] << 24) | (rgb[0] << 16) | (rgb[1] << 8) | (rgb[2]));  //white value is only >0 if Alexa did provide a CT value, RGB colors will not be touched.
   return _rgb;
 }
 
+//white channel for RGBW lights. Always 0 unless colormode is ct
 uint8_t EspalexaDevice::getW()
 {
   return (getRGB() >> 24) & 0xFF;

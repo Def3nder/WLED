@@ -1,8 +1,8 @@
 /*
- * Infrared sensor support for generic 24 key RGB remote
+ * Infrared sensor support for generic 24/40/44 key RGB remotes
  */
 
-#if defined(WLED_DISABLE_INFRARED) || defined(ARDUINO_ARCH_ESP32)
+#if defined(WLED_DISABLE_INFRARED)
 void handleIR(){}
 #else
 
@@ -48,11 +48,11 @@ void decodeIR(uint32_t code)
   if (code == 0xFFFFFFFF) //repeated code, continue brightness up/down
   {
     irTimesRepeated++;
-    if (lastValidCode == IR24_BRIGHTER | lastValidCode == IR40_BPLUS )
+    if (lastValidCode == IR24_BRIGHTER || lastValidCode == IR40_BPLUS )
     { 
       relativeChange(&bri, 10); colorUpdated(2);
     }
-    else if (lastValidCode == IR24_DARKER | lastValidCode == IR40_BMINUS )
+    else if (lastValidCode == IR24_DARKER || lastValidCode == IR40_BMINUS )
     {
       relativeChange(&bri, -10, 5); colorUpdated(2);
     }
@@ -64,7 +64,7 @@ void decodeIR(uint32_t code)
     {
       relativeChangeWhite(-10, 5); colorUpdated(2);
     }
-    else if ((lastValidCode == IR24_ON | lastValidCode == IR44_ON) && irTimesRepeated > 7 )
+    else if ((lastValidCode == IR24_ON || lastValidCode == IR40_ON) && irTimesRepeated > 7 )
     {
       nightlightActive = true;
       nightlightStartTime = millis();
@@ -83,6 +83,7 @@ void decodeIR(uint32_t code)
       case 2: decodeIR24CT(code);  break;  // white 24-key remote with CW, WW, CT+ and CT- keys
       case 3: decodeIR40(code);    break;  // blue  40-key remote with 25%, 50%, 75% and 100% keys
       case 4: decodeIR44(code);    break;  // white 44-key remote with color-up/down keys and DIY1 to 6 keys 
+      case 5: decodeIR21(code);    break;  // white 21-key remote  
       default: return;
     }
   }
@@ -122,7 +123,6 @@ void decodeIR24(uint32_t code)
   lastValidCode = code;
   colorUpdated(2); //for notifier, IR is considered a button input
 }
-
 
 void decodeIR24OLD(uint32_t code)
 {
@@ -216,11 +216,21 @@ void decodeIR40(uint32_t code)
     case IR40_PURPLE       : colorFromUint24(COLOR_PURPLE);                              break;
     case IR40_MAGENTA      : colorFromUint24(COLOR_MAGENTA);                             break;
     case IR40_PINK         : colorFromUint24(COLOR_PINK);                                break;
-    case IR40_WARMWHITE2   : colorFromUint32(COLOR_WARMWHITE2);    effectCurrent = 0;    break;
-    case IR40_WARMWHITE    : colorFromUint32(COLOR_WARMWHITE);     effectCurrent = 0;    break;
-    case IR40_WHITE        : colorFromUint32(COLOR_NEUTRALWHITE);  effectCurrent = 0;    break;
-    case IR40_COLDWHITE    : colorFromUint32(COLOR_COLDWHITE);     effectCurrent = 0;    break;
-    case IR40_COLDWHITE2   : colorFromUint32(COLOR_COLDWHITE2);    effectCurrent = 0;    break;
+    case IR40_WARMWHITE2   : {
+      if (useRGBW) {        colorFromUint32(COLOR2_WARMWHITE2);   effectCurrent = 0; }    
+      else                  colorFromUint24(COLOR_WARMWHITE2);                       }   break;
+    case IR40_WARMWHITE    : {
+      if (useRGBW) {        colorFromUint32(COLOR2_WARMWHITE);    effectCurrent = 0; }    
+      else                  colorFromUint24(COLOR_WARMWHITE);                        }   break;
+    case IR40_WHITE        : {
+      if (useRGBW) {        colorFromUint32(COLOR2_NEUTRALWHITE); effectCurrent = 0; }    
+      else                  colorFromUint24(COLOR_NEUTRALWHITE);                     }   break;
+    case IR40_COLDWHITE    : {
+      if (useRGBW) {        colorFromUint32(COLOR2_COLDWHITE);    effectCurrent = 0; }   
+      else                  colorFromUint24(COLOR_COLDWHITE);                        }   break;
+    case IR40_COLDWHITE2    : {
+      if (useRGBW) {        colorFromUint32(COLOR2_COLDWHITE2);   effectCurrent = 0; }   
+      else                  colorFromUint24(COLOR_COLDWHITE2);                       }   break;
     case IR40_WPLUS        : relativeChangeWhite(10);                                    break;
     case IR40_WMINUS       : relativeChangeWhite(-10, 5);                                break;
     case IR40_WOFF         : whiteLast = col[3]; col[3] = 0;                             break;
@@ -242,7 +252,6 @@ void decodeIR40(uint32_t code)
   colorUpdated(2); //for notifier, IR is considered a button input 
 }
 
-
 void decodeIR44(uint32_t code)
 {
   switch (code) {
@@ -251,27 +260,37 @@ void decodeIR44(uint32_t code)
     case IR44_OFF         : briLast = bri; bri = 0;                                     break;
     case IR44_ON          : bri = briLast;                                              break;
     case IR44_RED         : colorFromUint24(COLOR_RED);                                 break;
-    case IR44_GREEN       : colorFromUint24(COLOR_GREEN);                               break;
-    case IR44_BLUE        : colorFromUint24(COLOR_BLUE);                                break;
-    case IR44_WHITE       : {
-      if (col[3] > 0) col[3] = 0; 
-      else colorFromUint32(COLOR_NEUTRALWHITE); effectCurrent = 0; }                    break;
     case IR44_REDDISH     : colorFromUint24(COLOR_REDDISH);                             break;
-    case IR44_GREENISH    : colorFromUint24(COLOR_GREENISH);                            break;
-    case IR44_DEEPBLUE    : colorFromUint24(COLOR_DEEPBLUE);                            break;
-    case IR44_WARMWHITE2  : colorFromUint32(COLOR_WARMWHITE2);   effectCurrent = 0;     break;
     case IR44_ORANGE      : colorFromUint24(COLOR_ORANGE);                              break;
-    case IR44_TURQUOISE   : colorFromUint24(COLOR_TURQUOISE);                           break;
-    case IR44_PURPLE      : colorFromUint24(COLOR_PURPLE);                              break;
-    case IR44_WARMWHITE   : colorFromUint32(COLOR_WARMWHITE);    effectCurrent = 0;     break;
     case IR44_YELLOWISH   : colorFromUint24(COLOR_YELLOWISH);                           break;
-    case IR44_CYAN        : colorFromUint24(COLOR_CYAN);                                break;
-    case IR44_MAGENTA     : colorFromUint24(COLOR_MAGENTA);                             break;
-    case IR44_COLDWHITE   : colorFromUint32(COLOR_COLDWHITE);    effectCurrent = 0;     break;
     case IR44_YELLOW      : colorFromUint24(COLOR_YELLOW);                              break;
+    case IR44_GREEN       : colorFromUint24(COLOR_GREEN);                               break;
+    case IR44_GREENISH    : colorFromUint24(COLOR_GREENISH);                            break;
+    case IR44_TURQUOISE   : colorFromUint24(COLOR_TURQUOISE);                           break;
+    case IR44_CYAN        : colorFromUint24(COLOR_CYAN);                                break;
     case IR44_AQUA        : colorFromUint24(COLOR_AQUA);                                break;
+    case IR44_BLUE        : colorFromUint24(COLOR_BLUE);                                break;
+    case IR44_DEEPBLUE    : colorFromUint24(COLOR_DEEPBLUE);                            break;
+    case IR44_PURPLE      : colorFromUint24(COLOR_PURPLE);                              break;
+    case IR44_MAGENTA     : colorFromUint24(COLOR_MAGENTA);                             break;
     case IR44_PINK        : colorFromUint24(COLOR_PINK);                                break;
-    case IR44_COLDWHITE2  : colorFromUint32(COLOR_COLDWHITE2);   effectCurrent = 0;     break;
+    case IR44_WHITE       : {
+      if (useRGBW) {
+        if (col[3] > 0) col[3] = 0; 
+        else {              colorFromUint32(COLOR2_NEUTRALWHITE); effectCurrent = 0; }
+      } else                colorFromUint24(COLOR_NEUTRALWHITE);                     }  break;
+    case IR44_WARMWHITE2  : {
+      if (useRGBW) {        colorFromUint32(COLOR2_WARMWHITE2);   effectCurrent = 0; }    
+      else                  colorFromUint24(COLOR_WARMWHITE2);                       }  break;
+    case IR44_WARMWHITE   : {
+      if (useRGBW) {        colorFromUint32(COLOR2_WARMWHITE);    effectCurrent = 0; }    
+      else                  colorFromUint24(COLOR_WARMWHITE);                        }  break;
+    case IR44_COLDWHITE   : {
+      if (useRGBW) {        colorFromUint32(COLOR2_COLDWHITE);    effectCurrent = 0; }   
+      else                  colorFromUint24(COLOR_COLDWHITE);                        }  break;
+    case IR44_COLDWHITE2  : {
+      if (useRGBW) {        colorFromUint32(COLOR2_COLDWHITE2);   effectCurrent = 0; }    
+      else                  colorFromUint24(COLOR_COLDWHITE2);                       }  break;
     case IR44_REDPLUS     : relativeChange(&effectCurrent, 1);                          break;
     case IR44_REDMINUS    : relativeChange(&effectCurrent, -1, 0);                      break;
     case IR44_GREENPLUS   : relativeChange(&effectPalette, 1);                          break;
@@ -297,6 +316,35 @@ void decodeIR44(uint32_t code)
   colorUpdated(2); //for notifier, IR is considered a button input 
 }
 
+void decodeIR21(uint32_t code)
+{
+    switch (code) {
+    case IR21_BRIGHTER:  relativeChange(&bri, 10);         break;
+    case IR21_DARKER:    relativeChange(&bri, -10, 5);     break;
+    case IR21_OFF:       briLast = bri; bri = 0;           break;
+    case IR21_ON:        bri = briLast;                    break;
+    case IR21_RED:       colorFromUint32(COLOR_RED);       break;
+    case IR21_REDDISH:   colorFromUint32(COLOR_REDDISH);   break;
+    case IR21_ORANGE:    colorFromUint32(COLOR_ORANGE);    break;
+    case IR21_YELLOWISH: colorFromUint32(COLOR_YELLOWISH); break;
+    case IR21_GREEN:     colorFromUint32(COLOR_GREEN);     break;
+    case IR21_GREENISH:  colorFromUint32(COLOR_GREENISH);  break;
+    case IR21_TURQUOISE: colorFromUint32(COLOR_TURQUOISE); break;
+    case IR21_CYAN:      colorFromUint32(COLOR_CYAN);      break;
+    case IR21_BLUE:      colorFromUint32(COLOR_BLUE);      break;
+    case IR21_DEEPBLUE:  colorFromUint32(COLOR_DEEPBLUE);  break;
+    case IR21_PURPLE:    colorFromUint32(COLOR_PURPLE);    break;
+    case IR21_PINK:      colorFromUint32(COLOR_PINK);      break;
+    case IR21_WHITE:     colorFromUint32(COLOR_WHITE);           effectCurrent = 0;  break;
+    case IR21_FLASH:     if (!applyPreset(1)) effectCurrent = FX_MODE_COLORTWINKLE;  break;
+    case IR21_STROBE:    if (!applyPreset(2)) effectCurrent = FX_MODE_RAINBOW_CYCLE; break;
+    case IR21_FADE:      if (!applyPreset(3)) effectCurrent = FX_MODE_BREATH;        break;
+    case IR21_SMOOTH:    if (!applyPreset(4)) effectCurrent = FX_MODE_RAINBOW;       break;
+    default: return;
+    }
+    lastValidCode = code;
+    colorUpdated(2); //for notifier, IR is considered a button input
+}
 
 void initIR()
 {
@@ -322,9 +370,12 @@ void handleIR()
       
       if (irrecv->decode(&results))
       {
-        Serial.print("IR recv\r\n0x");
-        Serial.println((uint32_t)results.value, HEX);
-        Serial.println();
+        if (results.value != 0) // only print results if anything is received ( != 0 )
+        {
+          Serial.print("IR recv\r\n0x");
+          Serial.println((uint32_t)results.value, HEX);
+          Serial.println();
+        }
         decodeIR(results.value);
         irrecv->resume();
       }

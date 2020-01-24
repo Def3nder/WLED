@@ -104,7 +104,6 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
     if (t >= 0 && t < 4) strip.paletteBlend = t;
     strip.reverseMode = request->hasArg("RV");
     skipFirstLed = request->hasArg("SL");
-    disableNLeds = request->arg("DL").toInt();
     t = request->arg("BF").toInt();
     if (t > 0) briMultiplier = t;
   }
@@ -200,7 +199,6 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
 
     if (request->hasArg("OL")){
       overlayDefault = request->arg("OL").toInt();
-      if (overlayCurrent != overlayDefault) strip.unlockAll();
       overlayCurrent = overlayDefault;
     }
 
@@ -291,7 +289,7 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
   }
   if (subPage != 6 || !doReboot) saveSettingsToEEPROM(); //do not save if factory reset
   if (subPage == 2) {
-    strip.init(useRGBW,ledCount,skipFirstLed,disableNLeds);
+    strip.init(useRGBW,ledCount,skipFirstLed);
   }
   if (subPage == 4) alexaInit();
 }
@@ -379,11 +377,14 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
     if (t < strip.getMaxSegments()) main = t;
   }
 
+  WS2812FX::Segment& mainseg = strip.getSegment(main);
   pos = req.indexOf("SV="); //segment selected
-  if (pos > 0) strip.getSegment(main).setOption(0, (req.charAt(pos+3) != '0'));
+  if (pos > 0) mainseg.setOption(0, (req.charAt(pos+3) != '0'));
 
-  uint16_t startI = strip.getSegment(main).start;
-  uint16_t stopI = strip.getSegment(main).stop;
+  uint16_t startI = mainseg.start;
+  uint16_t stopI = mainseg.stop;
+  uint8_t grpI = mainseg.grouping;
+  uint16_t spcI = mainseg.spacing;
   pos = req.indexOf("&S="); //segment start
   if (pos > 0) {
     startI = getNumVal(&req, pos);
@@ -392,7 +393,16 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
   if (pos > 0) {
     stopI = getNumVal(&req, pos);
   }
-  strip.setSegment(main, startI, stopI);
+  pos = req.indexOf("GP="); //segment grouping
+  if (pos > 0) {
+    grpI = getNumVal(&req, pos);
+    if (grpI == 0) grpI = 1;
+  }
+  pos = req.indexOf("SP="); //segment spacing
+  if (pos > 0) {
+    spcI = getNumVal(&req, pos);
+  }
+  strip.setSegment(main, startI, stopI, grpI, spcI);
 
   main = strip.getMainSegmentId();
 
@@ -459,29 +469,6 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
   pos = req.indexOf("OL=");
   if (pos > 0) {
     overlayCurrent = getNumVal(&req, pos);
-    strip.unlockAll();
-  }
-
-  //(un)lock pixel (ranges)
-  pos = req.indexOf("&L=");
-  if (pos > 0) {
-    uint16_t index = getNumVal(&req, pos);
-    pos = req.indexOf("L2=");
-    bool unlock = req.indexOf("UL") > 0;
-    if (pos > 0) {
-      uint16_t index2 = getNumVal(&req, pos);
-      if (unlock) {
-        strip.unlockRange(index, index2);
-      } else {
-        strip.lockRange(index, index2);
-      }
-    } else {
-      if (unlock) {
-        strip.unlock(index);
-      } else {
-        strip.lock(index);
-      }
-    }
   }
 
   //apply macro
@@ -535,6 +522,7 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
   if (pos > 0)
   {
     nightlightFade = (req.charAt(pos+3) != '0');
+    nightlightColorFade = (req.charAt(pos+3) == '2');  //NighLightColorFade can only be enabled via API or Macro with "NF=2"
     nightlightActiveOld = false; //re-init
   }
 
@@ -622,6 +610,10 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
 
   //cronixie
   #ifndef WLED_DISABLE_CRONIXIE
+  //mode, 1 countdown
+  pos = req.indexOf("NM=");
+  if (pos > 0) countdownMode = (req.charAt(pos+3) != '0');
+  
   pos = req.indexOf("NX="); //sets digits to code
   if (pos > 0) {
     strlcpy(cronixieDisplay, req.substring(pos + 3, pos + 9).c_str(), 6);
@@ -636,9 +628,6 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
     overlayRefreshedTime = 0;
   }
   #endif
-  //mode, 1 countdown
-  pos = req.indexOf("NM=");
-  if (pos > 0) countdownMode = (req.charAt(pos+3) != '0');
 
   pos = req.indexOf("U0="); //user var 0
   if (pos > 0) {

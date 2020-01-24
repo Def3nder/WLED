@@ -47,13 +47,11 @@ public:
   uint32_t getKelvin();
   float getX();
   float getY();
-  float minf (float v, float w);
-  float maxf (float v, float w);
   uint32_t getRGB();
-  uint8_t getW();
   uint8_t getR();
   uint8_t getG();
   uint8_t getB();
+  uint8_t getW();
   EspalexaColorMode getColorMode();
   EspalexaDeviceType getType();
   
