@@ -191,12 +191,8 @@ void serializeSegment(JsonObject& root, WS2812FX::Segment& seg, byte id)
 	root["rev"] = seg.getOption(1);
 }
 
-void serializeState(JsonObject root)
-{
-  serializeState(root, true);
-}
 
-void serializeState(JsonObject root, bool includeSegments)
+void serializeState(JsonObject root)
 {
   if (errorFlag) root["error"] = errorFlag;
   
@@ -226,8 +222,6 @@ void serializeState(JsonObject root, bool includeSegments)
 
   root["mainseg"] = strip.getMainSegmentId();
   
-  if (includeSegments) 
-  {
   JsonArray seg = root.createNestedArray("seg");
   for (byte s = 0; s < strip.getMaxSegments(); s++)
   {
@@ -237,7 +231,6 @@ void serializeState(JsonObject root, bool includeSegments)
       JsonObject seg0 = seg.createNestedObject();
       serializeSegment(seg0, sg, s);
     }
-  }
   }
 }
 
