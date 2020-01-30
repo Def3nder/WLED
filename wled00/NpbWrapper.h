@@ -222,8 +222,13 @@ public:
     }
   }
 
-  void SetPixelColor(uint16_t indexPixel, RgbwColor color)
+  void SetPixelColor(uint16_t indexPixel, RgbwColor color_in)
   {
+    RgbwColor color; 
+    color.W = color_in.R < color_in.G ? (color_in.R < color_in.B ? color_in.R : color_in.B) : (color_in.G < color_in.B ? color_in.G : color_in.B);
+	  color.R = color_in.R - color.W;
+	  color.G = color_in.G - color.W;
+	  color.B = color_in.B - color.W;
     switch (_type) {
       case NeoPixelType_Grb: {
         _pGrb->SetPixelColor(indexPixel, RgbColor(color.R,color.G,color.B));
