@@ -79,7 +79,38 @@ char* XML_response(AsyncWebServerRequest *request, char* dest = nullptr)
   }
   oappend("</ds><ss>");
   oappendi(strip.getMainSegmentId());
-  oappend("</ss></vs>");
+  oappend("</ss>");
+  // append a string for use in html-API
+  char s[16];
+  oappend("<presetstring>");
+  oappend("http&#58;&#47;&#47;");
+  IPAddress localIP = WiFi.localIP();
+  sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
+  oappend(s);
+  oappend("&#47;win&#38;A&#61;");
+  oappendi(bri);
+  oappend("&#38;CL&#61;h");
+  for (int i = 0; i < 3; i++)
+  {
+   sprintf(s,"%02X", col[i]);
+   oappend(s); 
+  }
+  oappend("&#38;C2&#61;h");
+  for (int i = 0; i < 3; i++)
+  {
+   sprintf(s,"%02X", colSec[i]);
+   oappend(s);
+  }
+  oappend("&#38;FX&#61;");
+  oappendi(effectCurrent);
+  oappend("&#38;SX&#61;");
+  oappendi(effectSpeed);
+  oappend("&#38;IX&#61;");
+  oappendi(effectIntensity);
+  oappend("&#38;FP&#61;");
+  oappendi(effectPalette);
+  oappend("</presetstring>");
+  oappend("</vs>");
   if (request != nullptr) request->send(200, "text/xml", obuf);
 }
 

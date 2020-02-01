@@ -170,6 +170,7 @@ void serializeSegment(JsonObject& root, WS2812FX::Segment& seg, byte id)
 	root["len"] = seg.stop - seg.start;
   root["grp"] = seg.grouping;
   root["spc"] = seg.spacing;
+  root["rev"] = seg.reverseMode;
 
 	JsonArray colarr = root.createNestedArray("col");
 
@@ -198,13 +199,14 @@ void serializeState(JsonObject root)
   
   root["on"] = (bri > 0);
   root["bri"] = briLast;
+  root["multiplier"] = briMultiplier;
   root["transition"] = transitionDelay/100; //in 100ms
 
   root["ps"] = currentPreset;
   root["pss"] = savedPresets;
   root["pl"] = (presetCyclingEnabled) ? 0: -1;
 
-  //temporary for preser cycle
+  //temporary for preset cycle
   JsonObject ccnf = root.createNestedObject("ccnf");
   ccnf["min"] = presetCycleMin;
   ccnf["max"] = presetCycleMax;
@@ -219,6 +221,23 @@ void serializeState(JsonObject root)
   JsonObject udpn = root.createNestedObject("udpn");
   udpn["send"] = notifyDirect;
   udpn["recv"] = receiveNotifications;
+  JsonObject ntfy = root.createNestedObject("notify");  
+  ntfy["button"] = buttonEnabled && notifyButton;
+  ntfy["twice"] = notifyTwice;
+  ntfy["bri"] = receiveNotificationBrightness;
+  ntfy["col"] = receiveNotificationColor;
+  ntfy["eff"] = receiveNotificationEffects;
+  ntfy["macro"] = notifyMacro;
+  ntfy["alexa"] = notifyAlexa;
+  JsonObject mrco = root.createNestedObject("macro");  
+  mrco["boot"] = macroBoot;
+  mrco["btn"] = macroButton;
+  mrco["btnlong"] = macroLongPress;
+  mrco["btndbl"] = macroDoublePress;
+  mrco["countdown"] = macroCountdown;
+  mrco["alexaOn"] = macroAlexaOn;
+  mrco["alexaOff"] = macroAlexaOff;
+  mrco["nightlight"] = macroNl;
 
   root["mainseg"] = strip.getMainSegmentId();
   
@@ -265,16 +284,18 @@ void serializeInfo(JsonObject root)
   wifi_info["rssi"] = qrssi;
   wifi_info["signal"] = getSignalQuality(qrssi);
   wifi_info["channel"] = WiFi.channel();
+  wifi_info["mDNS"] = cmDNS;
+  wifi_info["ntpEnabled"] = ntpEnabled;
   
   #ifdef ARDUINO_ARCH_ESP32
   root["arch"] = "esp32";
   root["core"] = ESP.getSdkVersion();
-  //root["maxalloc"] = ESP.getMaxAllocHeap();
+  root["maxalloc"] = ESP.getMaxAllocHeap();
   root["lwip"] = 0;
   #else
   root["arch"] = "esp8266";
   root["core"] = ESP.getCoreVersion();
-  //root["maxalloc"] = ESP.getMaxFreeBlockSize();
+  root["maxalloc"] = ESP.getMaxFreeBlockSize();
   root["lwip"] = LWIP_VERSION_MAJOR;
   #endif
   
