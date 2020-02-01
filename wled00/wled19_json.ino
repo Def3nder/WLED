@@ -170,7 +170,8 @@ void serializeSegment(JsonObject& root, WS2812FX::Segment& seg, byte id)
 	root["len"] = seg.stop - seg.start;
   root["grp"] = seg.grouping;
   root["spc"] = seg.spacing;
-  root["rev"] = seg.reverseMode;
+  root["sel"] = (seg.options && 0b01 == 0b01)?1:0;
+  root["rev"] = (seg.options && 0b10 == 0b10)?1:0;
 
 	JsonArray colarr = root.createNestedArray("col");
 
