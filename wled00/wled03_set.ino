@@ -106,6 +106,16 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
     skipFirstLed = request->hasArg("SL");
     t = request->arg("BF").toInt();
     if (t > 0) briMultiplier = t;
+    t = request->arg("AR1").toInt();
+    if (t > 0) analogRPIN1 = t;
+    t = request->arg("AG1").toInt();
+    if (t > 0) analogGPIN1 = t;
+    t = request->arg("AB1").toInt();
+    if (t > 0) analogBPIN1 = t;
+    t = request->arg("AW1").toInt();
+    if (t > 0) analogWPIN1 = t;
+    t = request->arg("AV1").toInt();
+    if (t > 0) analogW2PIN1 = t;
   }
 
   //UI
