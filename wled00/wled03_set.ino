@@ -106,16 +106,18 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
     skipFirstLed = request->hasArg("SL");
     t = request->arg("BF").toInt();
     if (t > 0) briMultiplier = t;
-    t = request->arg("AR1").toInt();
-    if (t > 0) analogRPIN1 = t;
-    t = request->arg("AG1").toInt();
-    if (t > 0) analogGPIN1 = t;
-    t = request->arg("AB1").toInt();
-    if (t > 0) analogBPIN1 = t;
-    t = request->arg("AW1").toInt();
-    if (t > 0) analogWPIN1 = t;
-    t = request->arg("AV1").toInt();
-    if (t > 0) analogW2PIN1 = t;
+
+    useAnalog = request->hasArg("AN");
+    t = request->arg("A1R").toInt();
+    if (t > 0) rPIN = t;
+    t = request->arg("A1G").toInt();
+    if (t > 0) gPIN = t;
+    t = request->arg("A1B").toInt();
+    if (t > 0) bPIN = t;
+    t = request->arg("A1W").toInt();
+    if (t > 0) wPIN = t;
+    t = request->arg("A1X").toInt();
+    if (t > 0) w2PIN = t;
   }
 
   //UI

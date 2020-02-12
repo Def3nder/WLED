@@ -132,12 +132,12 @@ Color order:
 Enable dumb/analog LEDs: <input type="checkbox" name="AN" onchange=UI() id="analog"><br>
 <span class="an">
 LED strip 1 GPIO PINs<br>
-R: <input name="AR1" type="number" min="0" max="32"> 
-G: <input name="AG1" type="number" min="0" max="32">
-B: <input name="AB1" type="number" min="0" max="32">
+R: <input name="A1R" type="number" min="0" max="32"> 
+G: <input name="A1G" type="number" min="0" max="32">
+B: <input name="A1B" type="number" min="0" max="32">
 <span class="wc">
-W: <input name="AW1" type="number" min="0" max="32">
-W2 (optional): <input name="AX1" type="number" min="0" max="32"><br></span>
+W: <input name="A1W" type="number" min="0" max="32">
+W2 (optional): <input name="A1X" type="number" min="0" max="32"><br></span>
 </span>
 <h3>Defaults</h3>
 Turn LEDs on after power up/reset: <input type=checkbox name=BO><br>

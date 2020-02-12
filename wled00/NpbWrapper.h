@@ -145,8 +145,14 @@ public:
         _pGrbw->Begin();
       break;
     }
+#ifdef WLED_USE_ANALOG_LEDS      
+    InitPwm();
+#endif
+  }
 
-    #ifdef WLED_USE_ANALOG_LEDS 
+#ifdef WLED_USE_ANALOG_LEDS      
+    void InitPwm(void)
+    {
       #ifdef ARDUINO_ARCH_ESP32
         ledcSetup(0, 5000, 8);
         ledcAttachPin(RPIN, 0);
@@ -179,9 +185,8 @@ public:
         analogWriteFreq(880);   //PWM frequency proven as good for LEDs
       #endif 
     #endif
-  }
+    }
 
-#ifdef WLED_USE_ANALOG_LEDS      
     void SetRgbwPwm(uint8_t r, uint8_t g, uint8_t b, uint8_t w, uint8_t w2=0)
     {
       #ifdef ARDUINO_ARCH_ESP32

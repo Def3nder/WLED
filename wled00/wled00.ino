@@ -128,6 +128,14 @@ bool autoRGBtoRGBW = false;                   //if RGBW enabled, calculate White
 bool turnOnAtBoot  = true;                    //turn on LEDs at power-up
 byte bootPreset = 0;                          //save preset to load after power-up
 
+bool useAnalogLeds = false;
+bool use5CH = false;
+byte rPIN  = 15;  // R pin for analog LED strip   
+byte gPIN  = 13;  // G pin for analog LED strip
+byte bPIN  = 12;  // B pin for analog LED strip
+byte wPIN  = 14;  // W pin for analog LED strip 
+byte w2PIN = 04;  //W2 pin for analog LED strip
+
 byte col[]{255, 160, 0, 0};                   //default RGB(W) color
 byte colSec[]{0, 0, 0, 0};                    //default RGB(W) secondary color
 byte briS = 128;                              //default brightness

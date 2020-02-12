@@ -240,6 +240,18 @@ void getSettingsJS(byte subPage, char* dest)
     sappend('i',"CO",strip.colorOrder);
     sappend('c',"AW",autoRGBtoRGBW);
 
+    #ifdef ARDUINO_ARCH_ESP32
+    sappend('c',"ESP32",true);
+    #else
+    sappend('c',"ESP32",false);
+    #endif
+    sappend('c',"AN",useAnalog);
+    sappend('v',"A1R",rPIN);
+    sappend('v',"A1G",gPIN);
+    sappend('v',"A1B",bPIN);
+    sappend('v',"A1W",wPIN);
+    sappend('v',"A1X",w2PIN);
+
     sappend('c',"BO",turnOnAtBoot);
     sappend('v',"BP",bootPreset);
 
