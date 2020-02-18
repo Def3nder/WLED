@@ -83,13 +83,16 @@
 //you can now change the color order in the web settings
 #ifdef USE_APA102
  #define PIXELFEATURE3 DotStarBgrFeature
- #define PIXELFEATURE4 DotStarLbgrFeature
+ #define PIXELFEATURE4 DotStarBgrFeature
+//  #define PIXELFEATURE4 DotStarLbgrFeature
 #elif defined(USE_LPD8806)
  #define PIXELFEATURE3 Lpd8806GrbFeature 
  #define PIXELFEATURE4 Lpd8806GrbFeature 
+//  #define PIXELFEATURE4 Lpd8806GrbFeature 
 #else
  #define PIXELFEATURE3 NeoGrbFeature
- #define PIXELFEATURE4 NeoGrbwFeature
+ #define PIXELFEATURE4 NeoGrbFeature
+//  #define PIXELFEATURE4 NeoGrbwFeature
 #endif
 
 
@@ -148,12 +151,12 @@ public:
 
     #ifdef WLED_USE_ANALOG_LEDS 
       #ifdef ARDUINO_ARCH_ESP32
-        ledcSetup(0, 5000, 8);
-        ledcAttachPin(RPIN, 0);
-        ledcSetup(1, 5000, 8);
-        ledcAttachPin(GPIN, 1);
-        ledcSetup(2, 5000, 8);        
-        ledcAttachPin(BPIN, 2);
+        // ledcSetup(0, 5000, 8);
+        // ledcAttachPin(RPIN, 0);
+        // ledcSetup(1, 5000, 8);
+        // ledcAttachPin(GPIN, 1);
+        // ledcSetup(2, 5000, 8);        
+        // ledcAttachPin(BPIN, 2);
         if(_type == NeoPixelType_Grbw) 
         {
           ledcSetup(3, 5000, 8);        
@@ -165,9 +168,9 @@ public:
         }
       #else  // ESP8266
         //init PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
-        pinMode(RPIN, OUTPUT);
-        pinMode(GPIN, OUTPUT);
-        pinMode(BPIN, OUTPUT); 
+        // pinMode(RPIN, OUTPUT);
+        // pinMode(GPIN, OUTPUT);
+        // pinMode(BPIN, OUTPUT); 
         if(_type == NeoPixelType_Grbw) 
         {
           pinMode(WPIN, OUTPUT); 
@@ -185,9 +188,9 @@ public:
     void SetRgbwPwm(uint8_t r, uint8_t g, uint8_t b, uint8_t w, uint8_t w2=0)
     {
       #ifdef ARDUINO_ARCH_ESP32
-        ledcWrite(0, r);  //RPIN
-        ledcWrite(1, g);  //GPIN
-        ledcWrite(2, b);  //BPIN
+        // ledcWrite(0, r);  //RPIN
+        // ledcWrite(1, g);  //GPIN
+        // ledcWrite(2, b);  //BPIN
         switch (_type) {
           case NeoPixelType_Grb:                                                  break;
           #ifdef WLED_USE_5CH_LEDS
@@ -197,9 +200,9 @@ public:
           #endif
         }        
       #else 
-        analogWrite(RPIN, r);
-        analogWrite(GPIN, g);
-        analogWrite(BPIN, b);
+        // analogWrite(RPIN, r);
+        // analogWrite(GPIN, g);
+        // analogWrite(BPIN, b);
         switch (_type) {
           case NeoPixelType_Grb:                                                  break;
           #ifdef WLED_USE_5CH_LEDS
@@ -238,22 +241,23 @@ public:
         #ifdef USE_LPD8806
         _pGrbw->SetPixelColor(indexPixel, RgbColor(color.R,color.G,color.B));
         #else
-        _pGrbw->SetPixelColor(indexPixel, color);
+        _pGrbw->SetPixelColor(indexPixel, RgbColor(color.R,color.G,color.B));
+        // _pGrbw->SetPixelColor(indexPixel, color);
         #endif
         #ifdef WLED_USE_ANALOG_LEDS      
           if (indexPixel != 0) return; //set analog LEDs from first pixel
           byte b = _pGrbw->GetBrightness();
           // check color values for Warm / Cold white mix (for RGBW)  // EsplanexaDevice.cpp
           #ifdef WLED_USE_5CH_LEDS
-            if        (color.R == 255 & color.G == 255 && color.B == 255 && color.W == 255) {  
+            if        (color.R == 255 && color.G == 255 && color.B == 255 && color.W == 255) {  
               SetRgbwPwm(0, 0, 0,                  0, color.W * b / 255);
-            } else if (color.R == 127 & color.G == 127 && color.B == 127 && color.W == 255) {  
+            } else if (color.R == 127 && color.G == 127 && color.B == 127 && color.W == 255) {  
               SetRgbwPwm(0, 0, 0, color.W * b / 512, color.W * b / 255);
-            } else if (color.R ==   0 & color.G ==   0 && color.B ==   0 && color.W == 255) {  
+            } else if (color.R ==   0 && color.G ==   0 && color.B ==   0 && color.W == 255) {  
               SetRgbwPwm(0, 0, 0, color.W * b / 255,                  0);
-            } else if (color.R == 130 & color.G ==  90 && color.B ==   0 && color.W == 255) {  
+            } else if (color.R == 130 && color.G ==  90 && color.B ==   0 && color.W == 255) {  
               SetRgbwPwm(0, 0, 0, color.W * b / 255, color.W * b / 512);
-            } else if (color.R == 255 & color.G == 153 && color.B ==   0 && color.W == 255) {  
+            } else if (color.R == 255 && color.G == 153 && color.B ==   0 && color.W == 255) {  
               SetRgbwPwm(0, 0, 0, color.W * b / 255,                  0);
             } else {  // not only white colors
               SetRgbwPwm(color.R * b / 255, color.G * b / 255, color.B * b / 255, color.W * b / 255);
