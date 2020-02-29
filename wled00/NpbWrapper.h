@@ -45,12 +45,13 @@
 
 #ifdef WLED_USE_ANALOG_LEDS
   //PWM pins - PINs 15,13,12,14 (W2 = 04)are used with H801 Wifi LED Controller
+  //PWM pins - PINs 4,12,14,13,5 are used in the Novostella Flood Light
   #ifdef WLED_USE_H801
-    #define RPIN 15   //R pin for analog LED strip   
-    #define GPIN 13   //G pin for analog LED strip
-    #define BPIN 12   //B pin for analog LED strip
-    #define WPIN 14   //W pin for analog LED strip 
-    #define W2PIN 04  //W2 pin for analog LED strip
+    #define RPIN 4    //R pin for analog LED strip   
+    #define GPIN 12   //G pin for analog LED strip
+    #define BPIN 14   //B pin for analog LED strip
+    #define WPIN 13   //W pin for analog LED strip 
+    #define W2PIN 5   //W2 pin for analog LED strip
     #undef BTNPIN
     #undef IR_PIN
     #define IR_PIN  0 //infrared pin (-1 to disable)  MagicHome: 4, H801 Wifi: 0
