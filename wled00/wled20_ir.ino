@@ -77,7 +77,7 @@ void changeEffectIntensity(int8_t amount)
     fastled_col.blue =  col[2];
     CHSV prim_hsv = rgb2hsv_approximate(fastled_col);
     int16_t new_val = (int16_t) prim_hsv.s + amount;
-    prim_hsv.s = (byte)constrain(new_val,0.1,255.1);  // constrain to 0-255
+    prim_hsv.s = (byte)constrain(new_val,15.1,255.1); // constrain to 15-255 - if saturation goes down to 0 the color itself is gone 
     hsv2rgb_rainbow(prim_hsv, fastled_col);
     col[0] = fastled_col.red; 
     col[1] = fastled_col.green; 
