@@ -77,7 +77,7 @@ void changeEffectIntensity(int8_t amount)
     fastled_col.blue =  col[2];
     CHSV prim_hsv = rgb2hsv_approximate(fastled_col);
     int16_t new_val = (int16_t) prim_hsv.s + amount;
-    prim_hsv.s = (byte)constrain(new_val,15.1,255.1); // constrain to 15-255 - if saturation goes down to 0 the color itself is gone 
+    prim_hsv.s = (byte)constrain(new_val,63.1,255.1); // constrain to 63-255 - if saturation goes down even lower, the color itself is gone 
     hsv2rgb_rainbow(prim_hsv, fastled_col);
     col[0] = fastled_col.red; 
     col[1] = fastled_col.green; 
@@ -92,26 +92,43 @@ void decodeIR(uint32_t code)
     irTimesRepeated++;
     if (lastValidCode == IR24_BRIGHTER || lastValidCode == IR40_BPLUS )
     { 
-      relativeChange(&bri, 10); colorUpdated(NOTIFIER_CALL_MODE_BUTTON);
+      relativeChange(&bri, 10); 
     }
     else if (lastValidCode == IR24_DARKER || lastValidCode == IR40_BMINUS )
     {
-      relativeChange(&bri, -10, 5); colorUpdated(NOTIFIER_CALL_MODE_BUTTON);
+      relativeChange(&bri, -10, 5);
     }
-    if (lastValidCode == IR40_WPLUS)
+    else if (lastValidCode == IR40_WPLUS)
     { 
-      relativeChangeWhite(10); colorUpdated(NOTIFIER_CALL_MODE_BUTTON);
+      relativeChangeWhite(10);
     }
     else if (lastValidCode == IR40_WMINUS)
     {
-      relativeChangeWhite(-10, 5); colorUpdated(NOTIFIER_CALL_MODE_BUTTON);
+      relativeChangeWhite(-10, 5);
+    }
+    else if (lastValidCode == IR40_QUICK || lastValidCode == IR44_QUICK)
+    {
+      changeEffectSpeed( 8);
+    }
+    else if (lastValidCode == IR40_SLOW || lastValidCode == IR44_SLOW)
+    {
+      changeEffectSpeed(-8);
+    }
+    else if (lastValidCode == IR40_JUMP7 || lastValidCode == IR44_BLUEPLUS)
+    {
+      changeEffectIntensity( 8);
+    }
+    else if (lastValidCode == IR40_AUTO || lastValidCode == IR44_BLUEMINUS)
+    {
+      changeEffectIntensity(-8); 
     }
     else if ((lastValidCode == IR24_ON || lastValidCode == IR40_ON) && irTimesRepeated > 7 )
     {
       nightlightActive = true;
-      nightlightStartTime = millis();
-      colorUpdated(NOTIFIER_CALL_MODE_BUTTON);
+      // nightlightStartTime = millis();  --> will be done in handleNightlight()
     }
+    else return;  // none of the above code -> do not notify
+    colorUpdated(NOTIFIER_CALL_MODE_BUTTON);
     return;
   }
   lastValidCode = 0; irTimesRepeated = 0;
@@ -283,8 +300,8 @@ void decodeIR40(uint32_t code)
     case IR40_W50          : bri = 127;                                                  break;
     case IR40_W75          : bri = 191;                                                  break;
     case IR40_W100         : bri = 255;                                                  break;
-    case IR40_QUICK        : changeEffectSpeed( 16);                                     break;
-    case IR40_SLOW         : changeEffectSpeed(-16);                                     break;
+    case IR40_QUICK        : changeEffectSpeed( 8);                                      break;
+    case IR40_SLOW         : changeEffectSpeed(-8);                                      break;
     case IR40_JUMP7        : changeEffectIntensity( 16);                                 break;
     case IR40_AUTO         : changeEffectIntensity(-16);                                 break;
     case IR40_JUMP3        : if (!applyPreset(1)) { effectCurrent = FX_MODE_STATIC;        effectPalette = 0; } break;
@@ -340,8 +357,8 @@ void decodeIR44(uint32_t code)
     case IR44_GREENMINUS  : relativeChange(&effectPalette, -1, 0);                      break;
     case IR44_BLUEPLUS    : changeEffectIntensity( 16);                                 break;
     case IR44_BLUEMINUS   : changeEffectIntensity(-16);                                 break;
-    case IR44_QUICK       : changeEffectSpeed( 16);                                     break;
-    case IR44_SLOW        : changeEffectSpeed(-16);                                     break;
+    case IR44_QUICK       : changeEffectSpeed( 8);                                      break;
+    case IR44_SLOW        : changeEffectSpeed(-8);                                      break;
     case IR44_DIY1        : if (!applyPreset(1)) { effectCurrent = FX_MODE_STATIC;        effectPalette = 0; } break;
     case IR44_DIY2        : if (!applyPreset(2)) { effectCurrent = FX_MODE_BREATH;        effectPalette = 0; } break;
     case IR44_DIY3        : if (!applyPreset(3)) { effectCurrent = FX_MODE_FIRE_FLICKER;  effectPalette = 0; } break;
