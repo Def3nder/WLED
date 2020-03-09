@@ -75,14 +75,114 @@ void changeEffectIntensity(int8_t amount)
     fastled_col.red =   col[0];
     fastled_col.green = col[1];
     fastled_col.blue =  col[2];
-    CHSV prim_hsv = rgb2hsv_approximate(fastled_col);
+    // CHSV prim_hsv = rgb2hsv_approximate(fastled_col);
+    CHSV prim_hsv = MYrgb2hsv(fastled_col);
+    Serial.printf("H: %d - S: %d - V: %d",prim_hsv.h,prim_hsv.s,prim_hsv.v);
+    Serial.println("");
     int16_t new_val = (int16_t) prim_hsv.s + amount;
     prim_hsv.s = (byte)constrain(new_val,63.1,255.1); // constrain to 63-255 - if saturation goes down even lower, the color itself is gone 
-    hsv2rgb_rainbow(prim_hsv, fastled_col);
+    // hsv2rgb_rainbow(prim_hsv, fastled_col);
+    fastled_col = MYhsv2rgb(prim_hsv);
     col[0] = fastled_col.red; 
     col[1] = fastled_col.green; 
     col[2] = fastled_col.blue;
   }
+}
+
+CRGB MYhsv2rgb(CHSV hsv)
+{
+    CRGB rgb;
+    unsigned char region, p, q, t;
+    unsigned int h, s, v, remainder;
+
+    if (hsv.s == 0)
+    {
+        rgb.r = hsv.v;
+        rgb.g = hsv.v;
+        rgb.b = hsv.v;
+        return rgb;
+    }
+
+    // converting to 16 bit to prevent overflow
+    h = hsv.h;
+    s = hsv.s;
+    v = hsv.v;
+
+    region = h / 43;
+    remainder = h - region; 
+
+    p = (v * (255 - s)) >> 8;
+    q = (v * (255 - ((s * remainder) >> 8))) >> 8;
+    t = (v * (255 - ((s * (255 - remainder)) >> 8))) >> 8;
+
+    switch (region)
+    {
+        case 0:
+            rgb.r = v;
+            rgb.g = t;
+            rgb.b = p;
+            break;
+        case 1:
+            rgb.r = q;
+            rgb.g = v;
+            rgb.b = p;
+            break;
+        case 2:
+            rgb.r = p;
+            rgb.g = v;
+            rgb.b = t;
+            break;
+        case 3:
+            rgb.r = p;
+            rgb.g = q;
+            rgb.b = v;
+            break;
+        case 4:
+            rgb.r = t;
+            rgb.g = p;
+            rgb.b = v;
+            break;
+        default:
+            rgb.r = v;
+            rgb.g = p;
+            rgb.b = q;
+            break;
+    }
+
+    return rgb;
+}
+
+CHSV MYrgb2hsv(CRGB rgb)
+{
+    CHSV hsv;
+    unsigned char rgbMin, rgbMax;
+
+    rgbMin = rgb.r < rgb.g ? (rgb.r < rgb.b ? rgb.r : rgb.b) : (rgb.g < rgb.b ? rgb.g : rgb.b);
+    rgbMax = rgb.r > rgb.g ? (rgb.r > rgb.b ? rgb.r : rgb.b) : (rgb.g > rgb.b ? rgb.g : rgb.b);
+
+    hsv.v = rgbMax;
+    if (hsv.v == 0)
+    {
+        hsv.h = 0;
+        hsv.s = 0;
+        return hsv;
+    }
+
+    hsv.s = 255 * ((float)(rgbMax - rgbMin)) / hsv.v;
+    if (hsv.s == 0)
+    {
+        hsv.h = 0;
+        return hsv;
+    }
+
+    if (rgbMax == rgb.r)
+        hsv.h = 0 + 43 * (rgb.g - rgb.b) / (rgbMax - rgbMin);
+    else if (rgbMax == rgb.g)
+        hsv.h = 85 + 43 * (rgb.b - rgb.r) / (rgbMax - rgbMin);
+    else
+        hsv.h = 170 + 43 * (rgb.r - rgb.g) / (rgbMax - rgbMin);
+
+    return hsv;
 }
 
 void decodeIR(uint32_t code)
@@ -463,9 +563,9 @@ void handleIR()
       {
         if (results.value != 0) // only print results if anything is received ( != 0 )
         {
-          Serial.print("IR recv\r\n0x");
-          Serial.println((uint32_t)results.value, HEX);
-          Serial.println();
+          // Serial.print("IR recv\r\n0x");
+          // Serial.println((uint32_t)results.value, HEX);
+          // Serial.println();
         }
         decodeIR(results.value);
         irrecv->resume();
