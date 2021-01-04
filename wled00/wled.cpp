@@ -200,6 +200,42 @@ void WLED::loop()
   }
   loops++;
 #endif        // WLED_DEBUG
+
+#ifdef M5STACK  // Use M5Stack display
+  M5.update();
+  avgLoops = avg16(avgLoops, loops);
+  maxLoops = max(maxLoops, loops);
+  if ( loops > 5 ) { minLoops = min(minLoops, loops); }
+
+  if (millis() - M5_debugTime > 3000) {
+    if (M5line > 13) {M5.Lcd.clear(BLACK); M5.Lcd.setCursor(0, 0); M5line = 1;}
+    M5.Lcd.setTextColor(RED);
+    M5.Lcd.printf("max: %5i   avg: %5i\r\n",maxLoops, avgLoops);  
+    M5line++;
+    maxLoops = 0;
+    minLoops = INT_MAX;
+    M5_debugTime = millis();
+  }
+  if (M5.BtnA.wasPressed()) {
+    M5.Lcd.clear(BLACK);
+    M5.Lcd.setTextColor(YELLOW);
+    M5.Lcd.setCursor(80, 0); M5.Lcd.println("WLED ready");
+    M5line = 1;
+    avgLoops = 0;
+  }
+  if (M5.BtnB.wasPressed()) {
+    if (M5line > 13) {M5.Lcd.clear(BLACK); M5.Lcd.setCursor(0, 0); M5line = 1;}
+    M5.Lcd.setTextColor(WHITE);
+    M5.Lcd.printf("Speed: %3i   Intesity: %3i\r\n",effectSpeed, effectIntensity);
+    M5line++;
+  }
+  if (M5.BtnC.wasPressed()) {
+    if (M5line > 13) {M5.Lcd.clear(BLACK); M5.Lcd.setCursor(0, 0); M5line = 1;}
+    M5.Lcd.setTextColor(GREEN);
+    M5.Lcd.printf("Heap: %5i Loops/s: %4i\r\n",ESP.getFreeHeap(), loops/10);
+    M5line++;
+  }
+#endif
 }
 
 void WLED::setup()
@@ -298,6 +334,16 @@ void WLED::setup()
 #endif
   // HTTP server page init
   initServer();
+
+#ifdef M5STACK
+  M5.begin(true, false, false, false);
+  M5.Lcd.clear(BLACK);
+  M5.Lcd.setTextColor(YELLOW);
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.setCursor(80, 0); M5.Lcd.println("WLED ready");
+  M5.Lcd.setTextColor(WHITE);
+  M5_debugTime = millis();
+#endif
 }
 
 void WLED::beginStrip()

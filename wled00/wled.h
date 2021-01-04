@@ -574,6 +574,15 @@ WLED_GLOBAL PinManagerClass pinManager _INIT(PinManagerClass());
   WLED_GLOBAL int loops _INIT(0);
 #endif
 
+#ifdef M5STACK
+  #include <M5Stack.h>
+  WLED_GLOBAL uint8_t  M5line   _INIT(1);
+  WLED_GLOBAL int maxLoops _INIT(0);
+  WLED_GLOBAL int minLoops _INIT(INT_MAX);
+  WLED_GLOBAL int avgLoops _INIT(0);
+  WLED_GLOBAL unsigned long M5_debugTime;
+#endif
+
 #ifdef ARDUINO_ARCH_ESP32
   #define WLED_CONNECTED (WiFi.status() == WL_CONNECTED || ETH.localIP()[0] != 0)
 #else
