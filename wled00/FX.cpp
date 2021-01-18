@@ -3950,7 +3950,7 @@ uint16_t WS2812FX::mode_tv_simulator(void) {
 */
 
 //CONFIG
-#define BACKLIGHT 5
+#define BACKLIGHT 0
 #define W_MAX_COUNT 20            //Number of simultaneous waves
 #define W_MAX_SPEED 6             //Higher number, higher speed
 #define W_WIDTH_FACTOR 6          //Higher number, smaller waves
@@ -3969,15 +3969,15 @@ class AuroraWave {
 
   public:
     void init(uint32_t segment_length, CRGB color) {
-      ttl = random(500, 1501);
+      ttl = random16(500, 1501);
       basecolor = color;
-      basealpha = random(60, 101) / (float)100;
+      basealpha = random8(100, 151) / (float)100;  // original: 60 to 100
       age = 0;
-      width = random(segment_length / 20, segment_length / W_WIDTH_FACTOR); //half of width to make math easier
+      width = random16(segment_length / 20, segment_length / W_WIDTH_FACTOR); //half of width to make math easier
       if (!width) width = 1;
-      center = random(101) / (float)100 * segment_length;
-      goingleft = random(0, 2) == 0;
-      speed_factor = (random(10, 31) / (float)100 * W_MAX_SPEED / 255);
+      center = random8(101) / (float)100 * segment_length;
+      goingleft = random8(0, 2) == 0;
+      speed_factor = (random8(10, 31) / (float)100);
       alive = true;
     }
 
@@ -3994,11 +3994,11 @@ class AuroraWave {
 
       //The age of the wave determines it brightness.
       //At half its maximum age it will be the brightest.
-      float ageFactor = 0.1;        
+      float ageFactor;        
       if((float)age / ttl < 0.5) {
         ageFactor = (float)age / (ttl / 2);
       } else {
-        ageFactor = (float)(ttl - age) / ((float)ttl * 0.5);
+        ageFactor = (float)(ttl - age) / ((float)ttl / 2);
       }
 
       //Calculate color based on above factors and basealpha value
@@ -4043,13 +4043,15 @@ class AuroraWave {
 
 uint16_t WS2812FX::mode_aurora(void) {
   //aux1 = Wavecount
-  //aux2 = Intensity in last loop
+  //aux0 = Intensity in last loop
 
   AuroraWave* waves;
+  // Scale the Speed depending on the length of the LED strip
+  uint8_t waveSpeed = map(SEGMENT.speed, 0, 255, 1, W_MAX_SPEED * SEGLEN / 100);
 
   if(SEGENV.aux0 != SEGMENT.intensity || SEGENV.call == 0) {
     //Intensity slider changed or first call
-    SEGENV.aux1 = ((float)SEGMENT.intensity / 255) * W_MAX_COUNT;
+    SEGENV.aux1 = map(SEGMENT.intensity, 0, 255, 1, W_MAX_COUNT);
     SEGENV.aux0 = SEGMENT.intensity;
 
     if(!SEGENV.allocateData(sizeof(AuroraWave) * SEGENV.aux1)) {
@@ -4067,7 +4069,7 @@ uint16_t WS2812FX::mode_aurora(void) {
 
   for(int i = 0; i < SEGENV.aux1; i++) {
     //Update values of wave
-    waves[i].update(SEGLEN, SEGMENT.speed);
+    waves[i].update(SEGLEN, waveSpeed);
 
     if(!(waves[i].stillAlive())) {
       //If a wave dies, reinitialize it starts over.
@@ -4080,12 +4082,14 @@ uint16_t WS2812FX::mode_aurora(void) {
     CRGB mixedRgb = CRGB(BACKLIGHT, BACKLIGHT, BACKLIGHT);
 
     //For each LED we must check each wave if it is "active" at this position.
-    //If there are multiple waves active on a LED we multiply their values.
+    //If there are multiple waves active on a LED we add their values.
     for(int  j = 0; j < SEGENV.aux1; j++) {
       CRGB rgb = waves[j].getColorForLED(i);
       
       if(rgb != CRGB(0)) {       
-        mixedRgb += rgb;
+        mixedRgb.r = qadd8(mixedRgb.r, rgb.r);
+        mixedRgb.g = qadd8(mixedRgb.g, rgb.g);
+        mixedRgb.b = qadd8(mixedRgb.b, rgb.b);
       }
     }
 
