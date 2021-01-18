@@ -52,6 +52,10 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
 
     noWifiSleep = request->hasArg(F("WS"));
 
+    #ifdef WLED_USE_ETHERNET
+    ethernetType = request->arg(F("ETH")).toInt();
+    #endif
+
     char k[3]; k[2] = 0;
     for (int i = 0; i<4; i++)
     {
@@ -90,7 +94,7 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
     saveCurrPresetCycConf = request->hasArg(F("PC"));
     turnOnAtBoot = request->hasArg(F("BO"));
     t = request->arg(F("BP")).toInt();
-    if (t <= 25) bootPreset = t;
+    if (t <= 250) bootPreset = t;
     strip.gammaCorrectBri = request->hasArg(F("GB"));
     strip.gammaCorrectCol = request->hasArg(F("GC"));
 
@@ -541,7 +545,7 @@ bool handleSet(AsyncWebServerRequest *request, const String& req, bool apply)
       strip.applyToAllSelected = true;
       strip.setColor(2, t[0], t[1], t[2], t[3]);
     } else {
-      strip.getSegment(selectedSeg).colors[2] = ((t[0] << 16) + (t[1] << 8) + t[2] + (t[3] << 24));
+      strip.getSegment(selectedSeg).setColor(2,((t[0] << 16) + (t[1] << 8) + t[2] + (t[3] << 24)), selectedSeg);
     }
   }
 
@@ -667,9 +671,9 @@ bool handleSet(AsyncWebServerRequest *request, const String& req, bool apply)
   pos = req.indexOf(F("SB="));
   if (pos > 0) {
     byte segbri = getNumVal(&req, pos);
-    strip.getSegment(selectedSeg).setOption(SEG_OPTION_ON, segbri);
+    strip.getSegment(selectedSeg).setOption(SEG_OPTION_ON, segbri, selectedSeg);
     if (segbri) {
-      strip.getSegment(selectedSeg).opacity = segbri;
+      strip.getSegment(selectedSeg).setOpacity(segbri, selectedSeg);
     }
   }
 
