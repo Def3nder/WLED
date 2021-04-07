@@ -318,8 +318,7 @@ void getSettingsJS(byte subPage, char* dest)
     }
 
     sappend('v',SET_F("CA"),briS);
-    //sappend('c',SET_F("EW"),useRGBW);
-    //sappend('i',SET_F("CO"),strip.getColorOrder());
+
     sappend('v',SET_F("AW"),strip.rgbwMode);
 
     sappend('c',SET_F("BO"),turnOnAtBoot);
@@ -335,13 +334,11 @@ void getSettingsJS(byte subPage, char* dest)
     sappend('v',SET_F("TL"),nightlightDelayMinsDefault);
     sappend('v',SET_F("TW"),nightlightMode);
     sappend('i',SET_F("PB"),strip.paletteBlend);
-    sappend('c',SET_F("RV"),strip.reverseMode);
     sappend('c',SET_F("SL"),skipFirstLed);
     sappend('v',SET_F("RL"),rlyPin);
     sappend('c',SET_F("RM"),rlyMde);
     sappend('v',SET_F("BT"),btnPin);
     sappend('v',SET_F("IR"),irPin);
-    sappend('v',SET_F("AX"),auxPin);
   }
 
   if (subPage == 3)

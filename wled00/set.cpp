@@ -105,17 +105,23 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
         pins[i] = (request->arg(lp).length() > 0) ? request->arg(lp).toInt() : 255;
       }
       type = request->arg(lt).toInt();
+      //if (isRgbw(type)) strip.isRgbw = true; //30fps
+      //strip.isRgbw = true;
       
       if (request->hasArg(lc) && request->arg(lc).toInt() > 0) {
         length = request->arg(lc).toInt();
       } else {
         break;  // no parameter
       }
+
       colorOrder = request->arg(co).toInt();
       start = (request->hasArg(ls)) ? request->arg(ls).toInt() : 0;
 
       if (busConfigs[s] != nullptr) delete busConfigs[s];
       busConfigs[s] = new BusConfig(type, pins, start, length, colorOrder, request->hasArg(cv));
+      //if (BusManager::isRgbw(type)) strip.isRgbw = true; //20fps
+      //strip.isRgbw = true;
+      doInitBusses = true;
     }
 
     ledCount = request->arg(F("LC")).toInt();
@@ -147,17 +153,9 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
       btnPin = -1;
     }
 
-    int hw_aux_pin = request->arg(F("AX")).toInt();
-    if (pinManager.allocatePin(hw_aux_pin,true)) {
-      auxPin = hw_aux_pin;
-    } else {
-      auxPin = -1;
-    }
-
     strip.ablMilliampsMax = request->arg(F("MA")).toInt();
     strip.milliampsPerLed = request->arg(F("LA")).toInt();
     
-    useRGBW = request->hasArg(F("EW"));
     strip.rgbwMode = request->arg(F("AW")).toInt();
 
     briS = request->arg(F("CA")).toInt();
@@ -183,7 +181,6 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
 
     t = request->arg(F("PB")).toInt();
     if (t >= 0 && t < 4) strip.paletteBlend = t;
-    strip.reverseMode = request->hasArg(F("RV"));
     skipFirstLed = request->hasArg(F("SL"));
     t = request->arg(F("BF")).toInt();
     if (t > 0) briMultiplier = t;
@@ -717,16 +714,6 @@ bool handleSet(AsyncWebServerRequest *request, const String& req, bool apply)
     nightlightActiveOld = false; //re-init
   }
   if (nightlightMode > NL_MODE_SUN) nightlightMode = NL_MODE_SUN;
-
-  //toggle general purpose output
-  if (auxPin>=0) {
-    pos = req.indexOf(F("AX="));
-    if (pos > 0) {
-      auxTime = getNumVal(&req, pos);
-      auxActive = true;
-      if (auxTime == 0) auxActive = false;
-    }
-  }
 
   pos = req.indexOf(F("TT="));
   if (pos > 0) transitionDelay = getNumVal(&req, pos);

@@ -3,12 +3,12 @@
 /*
    Main sketch, global variable declarations
    @title WLED project sketch
-   @version 0.12.0-a0
+   @version 0.12.0
    @author Christian Schwinne
  */
 
 // version code in format yymmddb (b = daily build)
-#define VERSION 2103130
+#define VERSION 2104030
 
 //uncomment this if you have a "my_config.h" file you'd like to use
 //#define WLED_USE_MY_CONFIG
@@ -16,8 +16,8 @@
 // ESP8266-01 (blue) got too little storage space to work with WLED. 0.10.2 is the last release supporting this unit.
 
 // ESP8266-01 (black) has 1MB flash and can thus fit the whole program, although OTA update is not possible. Use 1M(128K SPIFFS).
-// Uncomment some of the following lines to disable features to compile for ESP8266-01 (max flash size 434kB):
-// Alternatively, with platformio pass your chosen flags to your custom build target in platformio.ini.override
+// Uncomment some of the following lines to disable features:
+// Alternatively, with platformio pass your chosen flags to your custom build target in platformio_override.ini
 
 // You are required to disable over-the-air updates:
 //#define WLED_DISABLE_OTA         // saves 14kb
@@ -46,6 +46,10 @@
 
 // filesystem specific debugging
 //#define WLED_DEBUG_FS
+
+//optionally disable brownout detector on ESP32.
+//This is generally a terrible idea, but improves boot success on boards with a 3.3v regulator + cap setup that can't provide 400mA peaks
+//#define WLED_DISABLE_BROWNOUT_DET
 
 // Library inclusions. 
 #include <Arduino.h>
@@ -135,12 +139,6 @@
   Comment out this error message to build regardless.
 #endif
 
-#if !defined(IRPIN) || IRPIN < 0
-  #ifndef WLED_DISABLE_INFRARED
-    #define WLED_DISABLE_INFRARED
-  #endif
-#endif
-
 #ifndef WLED_DISABLE_INFRARED
   #include <IRremoteESP8266.h>
   #include <IRrecv.h>
@@ -153,11 +151,6 @@
 #else
   #define WLED_FS LITTLEFS
 #endif
-
-// remove flicker because PWM signal of RGB channels can become out of phase (part of core as of Arduino core v2.7.0)
-//#if defined(WLED_USE_ANALOG_LEDS) && defined(ESP8266)
-//  #include "src/dependencies/arduino/core_esp8266_waveform.h"
-//#endif
 
 // GLOBAL VARIABLES
 // both declared and defined in header (solution from http://www.keil.com/support/docs/1868.htm)
@@ -179,7 +172,7 @@
 #endif
 
 // Global Variable definitions
-WLED_GLOBAL char versionString[] _INIT("0.12.0-a0");
+WLED_GLOBAL char versionString[] _INIT("0.12.0");
 #define WLED_CODENAME "Hikari"
 
 // AP and OTA default passwords (for maximum security change them!)
@@ -236,7 +229,6 @@ WLED_GLOBAL bool noWifiSleep _INIT(false);                         // disabling 
 
 // LED CONFIG
 WLED_GLOBAL uint16_t ledCount _INIT(30);          // overcurrent prevented by ABL
-WLED_GLOBAL bool useRGBW      _INIT(false);       // SK6812 strips can contain an extra White channel
 WLED_GLOBAL bool turnOnAtBoot _INIT(true);        // turn on LEDs at power-up
 WLED_GLOBAL byte bootPreset   _INIT(0);           // save preset to load after power-up
 
@@ -493,19 +485,6 @@ WLED_GLOBAL unsigned long lastInterfaceUpdate _INIT(0);
 WLED_GLOBAL byte interfaceUpdateCallMode _INIT(NOTIFIER_CALL_MODE_INIT);
 WLED_GLOBAL char mqttStatusTopic[40] _INIT("");        // this must be global because of async handlers
 
-// auxiliary debug pin
-#ifndef AUXPIN
-WLED_GLOBAL int8_t auxPin _INIT(-1);
-#else
-WLED_GLOBAL int8_t auxPin _INIT(AUXPIN);
-#endif
-WLED_GLOBAL byte auxTime _INIT(0);
-WLED_GLOBAL unsigned long auxStartTime _INIT(0);
-WLED_GLOBAL bool auxActive _INIT(false);
-WLED_GLOBAL bool auxActiveBefore _INIT(false);
-WLED_GLOBAL byte auxDefaultState _INIT(0);                         // 0: input 1: high 2: low
-WLED_GLOBAL byte auxTriggeredState _INIT(0);                       // 0: input 1: high 2: low
-
 // alexa udp
 WLED_GLOBAL String escapedMac;
 #ifndef WLED_DISABLE_ALEXA
@@ -565,7 +544,8 @@ WLED_GLOBAL bool e131NewData _INIT(false);
 // led fx library object
 WLED_GLOBAL BusManager busses _INIT(BusManager());
 WLED_GLOBAL WS2812FX strip _INIT(WS2812FX());
-WLED_GLOBAL BusConfig* busConfigs[WLED_MAX_BUSSES]; //temporary, to remember values from network callback until after 
+WLED_GLOBAL BusConfig* busConfigs[WLED_MAX_BUSSES] _INIT({nullptr}); //temporary, to remember values from network callback until after 
+WLED_GLOBAL bool doInitBusses _INIT(false);
 
 // Usermod manager
 WLED_GLOBAL UsermodManager usermods _INIT(UsermodManager());
