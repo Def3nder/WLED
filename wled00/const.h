@@ -135,7 +135,7 @@
 #define BTN_TYPE_RESERVED         1
 #define BTN_TYPE_PUSH             2
 #define BTN_TYPE_PUSH_ACT_HIGH    3 //not implemented
-#define BTN_TYPE_SWITCH           4 //not implemented
+#define BTN_TYPE_SWITCH           4
 #define BTN_TYPE_SWITCH_ACT_HIGH  5 //not implemented
 
 //Ethernet board types
@@ -250,6 +250,10 @@
   #define LEDPIN 3
   #warning "Pin conflict compiling with DMX and LEDs on pin 2. The default LED pin has been changed to pin 3."
 #endif
+#endif
+
+#ifndef DEFAULT_LED_COUNT
+  #define DEFAULT_LED_COUNT 30
 #endif
 
 #endif

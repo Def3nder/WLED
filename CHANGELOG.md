@@ -2,6 +2,47 @@
 
 ### Builds after release 0.12.0
 
+#### Build 2104220
+
+-   Version bump to 0.12.1-b1 "Hikari"
+-   Release and build script improvements (PR #1844)
+
+#### Build 2104211
+
+-   Replace default TV simulator effect with the version that saves 18k of flash and appears visually identical
+
+#### Build 2104210
+
+-   Added `tb` to JSON state, allowing setting the timebase (set tb=0 to start e.g. wipe effect from the beginning). Receive only.
+-   Slightly raised Solid mode refresh rate to work with LEDs (TM1814) that require refresh rates of at least 2fps
+-   Added sunrise and sunset calculation to the backup JSON time source
+
+#### Build 2104151
+
+-   `NUM_STRIPS` no longer required with compile-time strip defaults
+-   Further optimizations in wled_math.h
+
+#### Build 2104150
+
+-   Added ability to add multiple busses as compile time defaults using the esp32_multistrip usermod define syntax
+
+#### Build 2104141
+
+-   Reduced memory usage by 540b by switching to a different trigonometric approximation
+
+#### Build 2104140
+
+-   Added dynamic location-based Sunrise/Sunset macros (PR #1889)
+-   Improved seasonal background handling (PR #1890)
+-   Fixed instance discovery not working if MQTT not compiled in
+-   Fixed Button, IR, Relay pin not assigned by default (resolves #1891)
+
+#### Build 2104120
+
+-   Added switch support (button macro is switch closing action, long press macro switch opening)
+-   Replaced Circus effect with new Running Dual effect (Circus is Tricolor Chase with Red/White/Black)
+-   Fixed ledmap with multiple segments (PR #1864)
+
 #### Build 2104030
 
 -   Fixed ESP32 crash on Drip effect with reversed segment (#1854)
