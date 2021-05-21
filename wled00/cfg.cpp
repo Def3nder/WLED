@@ -103,7 +103,7 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
       if (length==0) continue;
       uint8_t colorOrder = (int)elm[F("order")];
       //only use skip from the first strip (this shouldn't have been in ins obj. but remains here for compatibility)
-      if (s==0) skipFirstLed = elm[F("skip")];
+      uint8_t skipFirst = elm[F("skip")];
       uint16_t start = elm[F("start")] | 0;
       if (start >= ledCount) continue;
       //limit length of strip if it would exceed total configured LEDs
@@ -115,11 +115,11 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
       //refresh is required to remain off if at least one of the strips requires the refresh.
       strip.isOffRefreshRequred |= BusManager::isOffRefreshRequred(ledType);
       s++;
-      BusConfig bc = BusConfig(ledType, pins, start, length, colorOrder, reversed);
+      BusConfig bc = BusConfig(ledType, pins, start, length, colorOrder, reversed, skipFirst);
       mem += busses.memUsage(bc);
       if (mem <= MAX_LED_MEMORY) busses.add(bc);
     }
-    strip.finalizeInit(ledCount, skipFirstLed);
+    strip.finalizeInit(ledCount);
   }
   if (hw_led["rev"]) busses.getBus(0)->reversed = true; //set 0.11 global reversed setting for first bus
 
@@ -140,7 +140,6 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
   CJSON(macroLongPress,hw_btn_ins_0_macros[1]);
   CJSON(macroDoublePress, hw_btn_ins_0_macros[2]);
 
-  #ifndef WLED_DISABLE_INFRARED
   int hw_ir_pin = hw["ir"]["pin"] | -2; // 4
   if (hw_ir_pin > -2) {
     if (pinManager.allocatePin(hw_ir_pin,false)) {
@@ -149,7 +148,6 @@ bool deserializeConfig(JsonObject doc, bool fromFS) {
       irPin = -1;
     }
   }
-  #endif
   CJSON(irEnabled, hw["ir"]["type"]);
 
   JsonObject relay = hw[F("relay")];
@@ -488,7 +486,7 @@ void serializeConfig() {
     for (uint8_t i = 0; i < nPins; i++) ins_pin.add(pins[i]);
     ins[F("order")] = bus->getColorOrder();
     ins["rev"] = bus->reversed;
-    ins[F("skip")] = (skipFirstLed && s == 0) ? 1 : 0;
+    ins[F("skip")] = bus->skippedLeds();
     ins["type"] = bus->getType();
   }
 
@@ -508,11 +506,9 @@ void serializeConfig() {
   hw_btn_ins_0_macros.add(macroLongPress);
   hw_btn_ins_0_macros.add(macroDoublePress);
 
-  #ifndef WLED_DISABLE_INFRARED
   JsonObject hw_ir = hw.createNestedObject("ir");
   hw_ir["pin"] = irPin;
   hw_ir[F("type")] = irEnabled;              // the byte 'irEnabled' does contain the IR-Remote Type ( 0=disabled )
-  #endif
 
   JsonObject hw_relay = hw.createNestedObject(F("relay"));
   hw_relay["pin"] = rlyPin;

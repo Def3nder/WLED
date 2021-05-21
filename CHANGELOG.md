@@ -2,6 +2,24 @@
 
 ### Builds after release 0.12.0
 
+#### Build 2105200
+
+-   Fixed WS281x output on ESP32
+-   Fixed potential out-of-bounds write in MQTT
+-   Fixed IR pin not changeable if IR disabled
+-   Fixed XML API <wv> containing -1 on Manual only RGBW mode (see #888, #1783)
+
+#### Build 2105171
+
+-   Always copy MQTT payloads to prevent non-0-terminated strings
+-   Updated ArduinoJson to 6.18.0
+-   Added experimental support for `{"on":"t"}` to toggle on/off state via JSON
+
+#### Build 2105120
+
+-   Fixed possibility of non-0-terminated MQTT payloads
+-   Fixed two warnings regarding integer comparison
+
 #### Build 2105112
 
 -   Usermod settings page no usermods message
