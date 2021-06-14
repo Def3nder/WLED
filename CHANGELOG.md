@@ -2,6 +2,24 @@
 
 ### Builds after release 0.12.0
 
+#### Build 2106140
+
+-   Updated main logo
+-   Reduced flash usage by 0.8kB by using 8-bit instead of 32-bit PNGs for welcome and 404 pages
+-   Added a check to stop Alexa reporting an error if state set by macro differs from the expected state
+
+#### Build 2106100
+
+-   Added support for multiple buttons with various types (PR #1977)
+-   Fixed infinite playlists (PR #2020)
+-   Added `r` to playlist object, allows for shuffle regardless of the `repeat` value
+-   Improved accuracy of NTP time sync
+-   Added possibility for WLED UDP sync to sync system time
+-   Improved UDP sync accuracy, if both sender and receiver are NTP synced
+-   Fixed a cache issue with restored tabs
+-   Cache CORS request
+-   Disable WiFi sleep by default on ESP32
+
 #### Build 2105230
 
 -   No longer retain MQTT `/v` topic to alleviate storage loads on MQTT broker
